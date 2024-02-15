@@ -37,10 +37,44 @@ replace_spec_char <- function(x){
 # replace "_" and "-" with "" in marker matrix, parents pedigree, and validation pedigree
 marker_clean <- marker
 marker_clean$X <- replace_spec_char(marker_clean$X)
+rownames(marker_clean) <- marker_clean$X
 pedigree_parent_clean <- pedigree_parent
 pedigree_parent_clean <- as.data.frame(apply(pedigree_parent_clean, 2, FUN=replace_spec_char))
+pedigree_valid_clean <- pedigree_valid
+pedigree_valid_clean <- as.data.frame(apply(pedigree_valid_clean, 2, FUN=replace_spec_char))
 pedigree_clean <- pedigree_genotyped
 pedigree_clean <- as.data.frame(apply(pedigree_clean, 2, FUN=replace_spec_char))
+# change "-" into "." in SNP ID in marker_info_clean
+marker_info_clean <- marker_info
+marker_info_clean$probe_id <- gsub("-", ".", marker_info_clean$probe_id)
+
+sum(!marker_info_clean$probe_id %in% colnames(marker_clean))
+# [1] 0
+apply(pedigree_clean, 2, FUN=function(x){
+  sum(! x %in% rownames(marker_clean))
+})
+# Accession_ID Integrated_P1 Integrated_P2 
+# 0           372           296 
+apply(pedigree_valid_clean, 2, FUN=function(x){
+  sum(! x %in% rownames(marker_clean))
+})
+# Accession_ID Integrated_P1 Integrated_P2 
+# 0             0             0 
+apply(pedigree_parent_clean, 2, FUN=function(x){
+  sum(! x %in% rownames(marker_clean))
+})
+# Accession_ID Integrated_P1 Integrated_P2 
+# 0           372           296 
+dim(marker_clean)
+# [1]   999 37445
+dim(marker_info_clean)
+# [1] 37444    13
+dim(pedigree_clean)
+# [1] 999   3
+dim(pedigree_valid_clean)
+# [1] 436   3
+dim(pedigree_parent_clean)
+# [1] 563   3
 
 
 
@@ -56,12 +90,6 @@ metaData = c(
   "##FILTER=<ID=PASS,Description=PASS>",
   "##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">"
 )
-
-
-
-# change "-" into "." in SNP ID in marker_info_clean
-marker_info_clean <- marker_info
-marker_info_clean$probe_id <- gsub("-", ".", marker_info_clean$probe_id)
 
 
 
@@ -111,18 +139,21 @@ order_parent <- order(marker_info_parent$CHROM, marker_info_parent$POS)
 marker_info_parent <- marker_info_parent[order_parent, ]
 rownames(marker_info_parent) <- marker_info_parent$ID
 
-marker_info_parent <- as.matrix(marker_info_parent, row.names=NULL)
-
-# remove " " empty space before the positions
-marker_info_parent[,2] <- gsub(" ", "", marker_info_parent[,2])
-
-
-
 marker_clean_parent <- marker_clean_parent[-remove_parent, ]
 marker_clean_parent <- marker_clean_parent[order_parent, ]
 # make sure two data sets are in the right order
 sum(rownames(marker_info_parent)!=rownames(marker_clean_parent))
 # [1] 0
+
+write.csv(marker_info_parent, "generate_vcffiles/marker_info_parent.csv")
+write.csv(marker_clean_parent, "generate_vcffiles/marker_matrix_parent.csv")
+
+
+
+marker_info_parent <- as.matrix(marker_info_parent, row.names=NULL)
+
+# remove " " empty space before the positions
+marker_info_parent[,2] <- gsub(" ", "", marker_info_parent[,2])
 
 marker_clean_parent <- as.matrix(marker_clean_parent, row.names=NULL)
 
@@ -130,8 +161,71 @@ marker_clean_parent <- as.matrix(marker_clean_parent, row.names=NULL)
 marker_parent <- new("vcfR", meta=metaData, fix=marker_info_parent, gt=marker_clean_parent)
 write.vcf(marker_parent, "generate_vcffiles/genotype_parent.vcf.gz")
 
-write.csv(as.data.frame(marker_info_parent), "generate_vcffiles/marker_info_parent.csv")
-write.csv(as.data.frame(marker_clean_parent), "generate_vcffiles/marker_matrix_parent.csv")
+
+
+
+# marker matrix for validation individuals 
+marker_clean_valid <- marker_clean[marker_clean$X %in% pedigree_valid_clean$Accession_ID, ]
+rownames(marker_clean_valid) <- marker_clean_valid$X
+marker_clean_valid <- marker_clean_valid[, -1]
+marker_clean_valid <- t(marker_clean_valid)
+marker_clean_valid <- as.data.frame(marker_clean_valid)
+marker_clean_valid[marker_clean_valid==2] <- "1/1"
+marker_clean_valid[marker_clean_valid==1] <- "0/1"
+marker_clean_valid[marker_clean_valid==0] <- "0/0"
+
+# create marker info matrix for valid individuals
+marker_info_valid <-
+  cbind(marker_info_clean[match(rownames(marker_clean_valid), marker_info_clean$probe_id), 
+                          c("Chromosome", "ref_site", "probe_id", "ref_nt")],
+        rep("N", nrow(marker_clean_valid)),
+        rep(99, nrow(marker_clean_valid)),
+        rep("PASS", nrow(marker_clean_valid)),
+        rep(NA, nrow(marker_clean_valid)),
+        rep("GT", nrow(marker_clean_valid)))
+colnames(marker_info_valid)[1:9] <-
+  c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT")
+nrow(marker_info_valid)
+# 37444
+
+# remove markers with NA position
+na_position_valid <- which(is.na(marker_info_valid$POS))
+# remove markers with "-" for ref allele
+na_ref_valid <- grep("[^ATCG]", marker_info_valid$REF)
+# remove duplicated markers
+dup <- which(duplicated(marker_info_valid[, c("CHROM", "POS")]))
+# create a union of all the markers need to be removed
+remove_valid <- union(union(na_position_valid, na_ref_valid), dup)
+length(remove_valid)
+# 159
+marker_info_valid <- marker_info_valid[-remove_valid, ]
+
+# reorder the markers by chromosome first then position
+order_valid <- order(marker_info_valid$CHROM, marker_info_valid$POS)
+marker_info_valid <- marker_info_valid[order_valid, ]
+rownames(marker_info_valid) <- marker_info_valid$ID
+
+marker_clean_valid <- marker_clean_valid[-remove_valid, ]
+marker_clean_valid <- marker_clean_valid[order_valid, ]
+# make sure two data sets are in the right order
+sum(rownames(marker_info_valid)!=rownames(marker_clean_valid))
+# [1] 0
+
+write.csv(as.data.frame(marker_info_valid), "generate_vcffiles/marker_info_valid.csv")
+write.csv(as.data.frame(marker_clean_valid), "generate_vcffiles/marker_matrix_valid.csv")
+
+
+
+marker_info_valid <- as.matrix(marker_info_valid, row.names=NULL)
+
+# remove " " empty space before the positions
+marker_info_valid[,2] <- gsub(" ", "", marker_info_valid[,2])
+
+marker_clean_valid <- as.matrix(marker_clean_valid, row.names=NULL)
+
+# create a "vcfR" object and save as vcf file
+marker_valid <- new("vcfR", meta=metaData, fix=marker_info_valid, gt=marker_clean_valid)
+write.vcf(marker_valid, "generate_vcffiles/genotype_valid.vcf.gz")
 
 
 
@@ -144,61 +238,26 @@ marker_clean[marker_clean==2] <- "1/1"
 marker_clean[marker_clean==1] <- "0/1"
 marker_clean[marker_clean==0] <- "0/0"
 
-{
-# # create marker info matrix for valid individuals
-# marker_info_valid <- 
-#   cbind(marker_info_clean[match(rownames(marker_clean), marker_info_clean$probe_id), 
-#                           c("Chromosome", "pos.x")], 
-#         rep(NA, nrow(marker_clean)), 
-#         marker_info_clean[match(rownames(marker_clean), marker_info_clean$probe_id), c("ref_nt")], 
-#         rep("N", nrow(marker_clean)), 
-#         rep(99, nrow(marker_clean)), 
-#         rep("PASS", nrow(marker_clean)), 
-#         rep(NA, nrow(marker_clean)), 
-#         rep("GT", nrow(marker_clean)))
-# colnames(marker_info_valid)[1:9] <- 
-#   c("CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT")
-# # nrow(marker_info_valid)
-# # 37444
-# 
-# # remove markers with NA position
-# na_position_valid <- which(is.na(marker_info_valid$POS))
-# # remove markers with "-" for ref allele
-# na_ref_valid <- grep("[^ATCG]", marker_info_valid$REF)
-# # remove duplicated markers 
-# dup <- which(duplicated(marker_info_valid))
-# # create a union of all the markers need to be removed
-# remove_valid <- union(union(na_position_valid, na_ref_valid), dup)
-# # length(remove_valid)
-# # 190
-# marker_info_valid <- marker_info_valid[-remove_valid, ]
-# 
-# # reorder the markers by chromosome first then position
-# order_valid <- order(marker_info_valid$CHROM, marker_info_valid$POS)
-# marker_info_valid <- marker_info_valid[order_valid, ]
-# 
-# marker_info_valid <- as.matrix(marker_info_valid, row.names=NULL)
-# 
-# # remove " " empty space before the positions
-# marker_info_valid[,2] <- gsub(" ", "", marker_info_valid[,2])
-}
-
 marker_clean <- marker_clean[-remove_parent, ]
 marker_clean <- marker_clean[order_parent, ]
 sum(rownames(marker_info_parent)!=rownames(marker_clean))
 # [1] 0
-marker_clean <- as.matrix(marker_clean, row.names=NULL)
-
-# rownames(marker_info_valid) <- rownames(marker_clean)
-
-# create a "vcfR" object and save as vcf file
-marker_valid <- new("vcfR", meta=metaData, fix=marker_info_parent, gt=marker_clean)
-write.vcf(marker_valid, "generate_vcffiles/genotype.vcf.gz")
 
 write.csv(as.data.frame(marker_info_parent), "generate_vcffiles/marker_info.csv")
 write.csv(as.data.frame(marker_clean), "generate_vcffiles/marker_matrix.csv")
 
 
 
+marker_clean <- as.matrix(marker_clean, row.names=NULL)
+
+# rownames(marker_info_valid) <- rownames(marker_clean)
+
+# create a "vcfR" object and save as vcf file
+marker_all <- new("vcfR", meta=metaData, fix=marker_info_parent, gt=marker_clean)
+write.vcf(marker_all, "generate_vcffiles/genotype.vcf.gz")
+
+
+
 write.csv(pedigree_clean, "generate_vcffiles/pedigree.csv", row.names=F)
 write.csv(pedigree_parent_clean, "generate_vcffiles/pedigree_parents.csv", row.names=F)
+write.csv(pedigree_valid_clean, "generate_vcffiles/pedigree_valid.csv", row.names=F)
