@@ -1,4 +1,4 @@
-setwd("~/strawberry_outcross_project/")
+setwd("~/family_variance/")
 library(vcfR)
 
 
@@ -75,8 +75,8 @@ get_index_non_two_het_par_cor_off <- function(vec){
 
 
 
-pedigree_valid <- read.csv("cleaned_data/pedigree_end_progenies.csv", row.names=1)
-marker_matrix <- read.csv("cleaned_data/marker_matrix.csv", row.names=1, check.names=F)
+pedigree_valid <- read.csv("generate_vcffiles/pedigree_valid.csv")
+marker_matrix <- read.csv("generate_vcffiles/marker_matrix.csv", row.names=1, check.names=F)
 phased_marker_parent <- read.vcfR("phased_data/phased_parent.vcf")
 phased_marker_info_parent <- as.data.frame(phased_marker_parent@fix)
 phased_marker_matrix_parent <- as.data.frame(phased_marker_parent@gt)
@@ -96,20 +96,21 @@ phased_marker_matrix_parent2[phased_marker_matrix_parent=="0|0"] <- 0
 phased_marker_matrix_parent2[phased_marker_matrix_parent=="0|1"] <- 1
 phased_marker_matrix_parent2[phased_marker_matrix_parent=="1|0"] <- 1
 phased_marker_matrix_parent2[phased_marker_matrix_parent=="1|1"] <- 2
-rownames(phased_marker_matrix_parent2) <- rownames(phased_marker_matrix_parent)
+rownames(phased_marker_matrix_parent2) <- phased_marker_info_parent$ID
 colnames(phased_marker_matrix_parent2) <- colnames(phased_marker_matrix_parent)
 
 par1_names <- pedigree_valid$Integrated_P1
 par2_names <- pedigree_valid$Integrated_P2
 off_names <- pedigree_valid$Accession_ID
 
-index_low_geno_error <- readRDS("codes/get_errors_index_off_low_error.rds")
+index_low_geno_error <- readRDS("get_errors/index_off_low_error.rds")
 par1_names_low_geno_error <- par1_names[which(index_low_geno_error)]
 par2_names_low_geno_error <- par2_names[which(index_low_geno_error)]
 off_names_low_geno_error <- off_names[which(index_low_geno_error)]
 
 
 
+# find the imputed parental genotypes, set up missing one vs two parental genotypes scenarios 
 trio_geno <- array(NA, dim=c(nrow(marker_matrix2), 5, length(off_names_low_geno_error)))
 for (i in 1:length(off_names_low_geno_error)){
   off_geno = marker_matrix2[, colnames(marker_matrix2)==off_names_low_geno_error[i]]
@@ -135,9 +136,10 @@ for (i in 1:length(off_names_low_geno_error)){
   trio_geno[, , i] = cbind(par1_impu, par2_impu, par1_impu2, par2_impu2, off_geno)
 }
 
-saveRDS(trio_geno, "codes/get_imputated_errors_trio_geno.rds")
-trio_geno <- readRDS("codes/get_imputated_errors_trio_geno.rds")
+saveRDS(trio_geno, "get_imputated_errors/trio_geno.rds")
+# trio_geno <- readRDS("get_imputated_errors/trio_geno.rds")
 
+# look at imputed parental genotypes with 0, 2, when only one missing genotyped parent
 index_homoz_par_missing_1par_sort <- 
   apply(trio_geno[, c(1:2, 5), ], c(1, 3), FUN=get_index_homoz_par_sort)
 index_homoz_par_missing_1par_02 <- index_homoz_par_missing_1par_sort[2, , ]
@@ -151,19 +153,26 @@ trio_geno_02[which(index_homoz_par_missing_1par_02)] <-
 
 error_rate_02 <- apply(trio_geno_02, c(1, 3), FUN=get_index_homoz_par_cor_off)
 error_rate_02_means <- apply(error_rate_02, 2, mean, na.rm=T)
-# length(error_rate_02_means)
-# # [1] 295
-# sum(is.na(error_rate_02_means))
-# # [1] 0
-# mean(error_rate_02_means)
-# # [1] 0.9410988
-# 1 - 0.9410988
-# # [1] 0.0589012
-pdf("plots/get_imputated_errors/p1.pdf")
+length(error_rate_02_means)
+# [1] 294
+sum(is.na(error_rate_02_means))
+# [1] 0
+mean(error_rate_02_means)
+# [1] 0.9357625
+1 - 0.9357625
+# [1] 0.0642375
+mean(error_rate_02, na.rm=T)
+# [1] 0.9395831
+1 - 0.9395831
+# [1] 0.0604169
+# imputation error for parental genotypes 0, 2 with one missing parental genotype
+pdf("get_imputated_errors/plots/p1.pdf")
 hist(error_rate_02_means, 
-     main="histogram for average imputations error across 295 trios \n missing one parental genotype")
+     xlab="correct imputation rate", 
+     main="histogram for average correct imputations across 294 trios \n missing one parental genotype")
 plot(density(na.omit(error_rate_02_means)), 
-     main="density for average imputations error across 295 trios")
+     xlab="correct imputation rate", 
+     main="density for average correct imputations across 294 trios")
 dev.off()
 
 # index_off_low_error_missing_1par <- apply(error_rate_02, 2, function(x){
@@ -175,6 +184,8 @@ dev.off()
 # saveRDS(index_off_low_error_missing_1par, 
 #         "codes/get_imputated_errors_index_off_low_error_missing_1par.rds")
 
+# do the same thing for missing both parental genotypes
+# not a lot of markers where both parents were not genotyped
 index_homoz_par_missing_2par_sort <- 
   apply(trio_geno[, 3:5, ], c(1, 3), FUN=get_index_homoz_par_sort)
 index_homoz_par_missing_2par_02 <- index_homoz_par_missing_2par_sort[2, , ]
@@ -188,23 +199,33 @@ trio_geno_missing_2par_02[which(index_homoz_par_missing_2par_02)] <-
 
 error_rate_missing_2par_02 <- apply(trio_geno_missing_2par_02, c(1, 3), FUN=get_index_homoz_par_cor_off)
 error_rate_missing_2par_02_means <- apply(error_rate_missing_2par_02, 2, mean, na.rm=T)
-# length(error_rate_missing_2par_02_means)
-# # [1] 295
-# sum(is.na(error_rate_missing_2par_02_means))
-# # [1] 175
-# mean(error_rate_missing_2par_02_means, na.rm=T)
-# # [1] 0.9743056
-# 1 - 0.9743056
-# # [1] 0.0256944
-pdf("plots/get_imputated_errors/p2.pdf")
+length(error_rate_missing_2par_02_means)
+# [1] 294
+sum(is.na(error_rate_missing_2par_02_means))
+# [1] 168
+sum(!is.na(error_rate_missing_2par_02_means))
+# [1] 126
+mean(error_rate_missing_2par_02_means, na.rm=T)
+# [1] 0.9212963
+1 - 0.9212963
+# [1] 0.0787037
+mean(error_rate_missing_2par_02, na.rm=T)
+# [1] 0.9342105
+1 - 0.9342105
+# [1] 0.0657895
+# imputation error for parental genotypes 0, 2 with both missing parental genotypes
+pdf("get_imputated_errors/plots/p2.pdf")
 hist(error_rate_missing_2par_02_means, 
-     main="histogram for average imputations error across 175 trios \n missing two parental genotype")
+     xlab="correct imputation rate", 
+     main="histogram for average correct imputations across 126 trios \n missing two parental genotype")
 plot(density(na.omit(error_rate_missing_2par_02_means)), 
-     main="density for average imputations error across 175 trios")
+     xlab="correct imputation rate", 
+     main="density for average correct imputations across 126 trios")
 dev.off()
 
 
 
+# error rate when at least one parent isn't heterozygous
 index_non_two_het_par_missing_1par <- 
   apply(trio_geno[, c(1:2,5), ], c(1, 3), FUN=get_index_non_two_het_par)
 dim(index_non_two_het_par_missing_1par) <- 
@@ -220,11 +241,11 @@ error_rate_missing_1par_non_two_het_par <-
   apply(trio_geno_missing_1par_non_two_het_par, c(1, 3), FUN=get_index_non_two_het_par_cor_off)
 error_rate_missing_1par_non_two_het_par_means <- 
   apply(error_rate_missing_1par_non_two_het_par, 2, mean, na.rm=T)
-mean(error_rate_missing_1par_non_two_het_par_means)
-# [1] 0.9689308
-1 - 0.9689308
-# [1] 0.0310692
-pdf("plots/get_imputated_errors/p4.pdf")
+mean(error_rate_missing_1par_non_two_het_par_means, na.rm=T)
+# [1] 0.9690498
+1 - 0.9690498
+# [1] 0.0309502
+pdf("get_imputated_errors/plots/p3.pdf")
 hist((1 - error_rate_missing_1par_non_two_het_par_means), 
      main="histogram for average imputations error across 295 trios \n missing one parental genotype")
 plot(density(na.omit(1 - error_rate_missing_1par_non_two_het_par_means)), 
@@ -248,11 +269,11 @@ error_rate_missing_2par_non_two_het_par <-
   apply(trio_geno_missing_2par_non_two_het_par, c(1, 3), FUN=get_index_non_two_het_par_cor_off)
 error_rate_missing_2par_non_two_het_par_means <- 
   apply(error_rate_missing_2par_non_two_het_par, 2, mean, na.rm=T)
-mean(error_rate_missing_2par_non_two_het_par_means)
-# [1] 0.9244055
-1 - 0.9244055
-# [1] 0.0755945
-pdf("plots/get_imputated_errors/p3.pdf")
+mean(error_rate_missing_2par_non_two_het_par_means, na.rm=T)
+# [1] 0.9209275
+1 - 0.9209275
+# [1] 0.0790725
+pdf("get_imputated_errors/plots/p4.pdf")
 hist((1 - error_rate_missing_2par_non_two_het_par_means), 
      main="histogram for average imputations error across 295 trios \n missing two parental genotype")
 plot(density(na.omit(1 - error_rate_missing_2par_non_two_het_par_means)), 
