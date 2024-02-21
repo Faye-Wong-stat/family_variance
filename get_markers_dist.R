@@ -16,8 +16,8 @@ rowcol <- function(ix, n){
 
 
 
-marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv")
-marker_info_cM_valid <- read.csv("get_markers_cM/marker_info_cM_valid.csv")
+marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv", row.names=1)
+# marker_info_cM_valid <- read.csv("get_markers_cM/marker_info_cM_valid.csv")
 # marker_matrix <- read.csv("cleaned_data/marker_matrix.csv", row.names=1, check.names=F)
 # phased_marker_parent <- read.vcfR("phased_data/phased_parent.vcf")
 # phased_marker_info_parent <- as.data.frame(phased_marker_parent@fix)
@@ -122,6 +122,16 @@ for (j in 1:length(chrom_names)){
       }
     }
   }
+  
+  dist_100 = as.data.frame(dist_100[-1, ])
+  dist_10 = as.data.frame(dist_10[-1, ])
+  dist_1 = as.data.frame(dist_1[-1, ])
+  dist_0.1 = as.data.frame(dist_0.1[-1, ])
+  dist_0.01 = as.data.frame(dist_0.01[-1, ])
+  
+  # dist_100 = apply(dist_100, 2, FUN=function(x){
+  #   return(rownames(marker_info_cM_parent2[marker_info_cM_parent2$CHROM==chrom_names[[j]], ])[x])
+  # })
   
   cM_dist_markers[[j]] = list(dist_100 = dist_100, 
                               dist_10 = dist_10, 
