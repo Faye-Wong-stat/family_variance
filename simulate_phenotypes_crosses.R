@@ -1,5 +1,4 @@
 # setwd("~/family_variance/")
-library(ggplot2)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) == 0) {
@@ -8,6 +7,7 @@ if (length(args) == 0) {
   print(paste0("Arg input:  ", args[1]))
 }
 
+library(ggplot2)
 
 offsprings_name <- args[1]
 

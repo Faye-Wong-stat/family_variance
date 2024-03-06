@@ -3,8 +3,8 @@
 #SBATCH --partition=med
 #SBATCH --job-name=simulate_phenotypes_crosses2
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=5G
-#SBATCH --time=00:30:00
+#SBATCH --mem=20G
+#SBATCH --time=24:00:00
 #SBATCH --output=/home/wang9418/family_variance/codes/logs/run_simulate_phenotypes_crosses2-%A_%a.out
 #SBATCH --error=/home/wang9418/family_variance/codes/logs/run_simulate_phenotypes_crosses2-%A_%a.err
 #SBATCH --mail-type=BEGIN
