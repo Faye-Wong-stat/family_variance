@@ -322,21 +322,6 @@ ggplot(cor_fammean_df, aes(h2s, cor)) +
   ylab("accuracy") + 
   ggtitle("accuracy of predicting family mean of BV, BayesC")
 dev.off()
-# pdf(paste("view_usefulness_real_data/plots/", "fammean_cor_2.pdf", sep=""), width=10)
-p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
-       aes(as.numeric(effective_marker_sizes), cor)) + 
-  geom_point() + 
-  geom_smooth(method="loess") + 
-  facet_wrap(~h2s) + 
-  xlab("number of causal loci") + 
-  ylab("accuracy") + 
-  scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
-  # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
-  theme_minimal_grid(font_size=10)
-# dev.off()
-save_plot(paste("view_usefulness_real_data/plots/", "fammean_cor_2.pdf", sep=""),
-          p1, 
-          base_width=6.5, base_height=2.17)
 
 
 
@@ -367,18 +352,7 @@ for (i in 1:length(h2s)){
     }
   }
 }
-# cor_famsd_RR_df <- data.frame(h2s = rep(h2s, each=(6*20)), 
-#                               effective_marker_sizes = 
-#                                 as.character(rep(rep(effective_marker_sizes, each=20), 5)), 
-#                               cor = rep(NA, (6*5*20)))
-# cor_famsd_RR_df$effective_marker_sizes <- 
-#   factor(cor_famsd_RR_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
-# for (i in 1:length(h2s)){
-#   for (j in 1:length(effective_marker_sizes)){
-#     cor_famsd_RR_df$cor[((i-1)*6*20 + (j-1)*20 + 1) : ((i-1)*6*20 + (j-1)*20 + 20)] = 
-#       cor_famsd_RR[[i]][[j]]
-#   }
-# }
+
 cor_famsd_RR_df <- data.frame(h2s = rep(h2s, each=(6*20)),
                               effective_marker_sizes =
                                 as.character(rep(rep(effective_marker_sizes, each=20), 5)),
@@ -482,18 +456,7 @@ for (i in 1:length(h2s)){
     }
   }
 }
-# cor_famsd_df <- data.frame(h2s = rep(h2s, each=(6*20)), 
-#                            effective_marker_sizes = 
-#                              as.character(rep(rep(effective_marker_sizes, each=20), 5)), 
-#                            cor = rep(NA, (6*5*20)))
-# cor_famsd_df$effective_marker_sizes <- 
-#   factor(cor_famsd_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
-# for (i in 1:length(h2s)){
-#   for (j in 1:length(effective_marker_sizes)){
-#     cor_famsd_df$cor[((i-1)*6*20 + (j-1)*20 + 1) : ((i-1)*6*20 + (j-1)*20 + 20)] = 
-#       cor_famsd[[i]][[j]]
-#   }
-# }
+
 cor_famsd_df <- data.frame(h2s = rep(paste("h2 = ", h2s, sep=""), each=(6*20)),
                            effective_marker_sizes =
                              as.character(rep(rep(effective_marker_sizes, each=20), 5)),
@@ -557,115 +520,34 @@ ggplot(cor_famsd_df, aes(h2s)) +
   ggtitle("accuracy of predicting family SD of BV, BayesC")
 dev.off()
 
-# # pdf(paste("view_usefulness_real_data/plots/", "famsd_cor_2.pdf", sep=""), width=10)
-# p2.1 <- ggplot(cor_famsd_df[cor_famsd_df$h2s == 0.1, ], 
-#        aes(as.numeric(effective_marker_sizes), y=cor)) +
-#   geom_point() +
-#   geom_smooth(method="loess") + 
-#   ylim(0, 1) + 
-#   xlab("number of causal loci") +
-#   ylab("accuracy") + 
-#   scale_x_continuous(breaks=1:6, labels=NULL) +
-#   theme_minimal_grid(font_size=10) + 
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank(), 
-#         plot.title = element_text(hjust = 0.5)) + 
-#   ggtitle("h2 = 0.1")
-#   # ggtitle("accuracy of predicting family SD of BV, BayesC")
-# # dev.off()
-# p2.2 <- ggplot(cor_famsd_df[cor_famsd_df$h2s == 0.5, ], 
-#                aes(as.numeric(effective_marker_sizes), y=cor)) +
-#   geom_point() +
-#   geom_smooth(method="loess") +
-#   ylim(0, 1) + 
-#   xlab("number of causal loci") +
-#   ylab("accuracy") + 
-#   scale_x_continuous(breaks=1:6, labels=NULL) +
-#   theme_minimal_grid(font_size=10) + 
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank(), 
-#         plot.title = element_text(hjust = 0.5)) + 
-#   ggtitle("h2 = 0.5")
-# p2.3 <- ggplot(cor_famsd_df[cor_famsd_df$h2s == 0.9, ], 
-#                aes(as.numeric(effective_marker_sizes), y=cor)) +
-#   geom_point() +
-#   geom_smooth(method="loess") +
-#   ylim(0, 1) +
-#   xlab("number of causal loci") +
-#   ylab("accuracy") + 
-#   scale_x_continuous(breaks=1:6, labels=NULL) +
-#   theme_minimal_grid(font_size=10) + 
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank(), 
-#         plot.title = element_text(hjust = 0.5)) + 
-#   ggtitle("h2 = 0.9")
-# prow2 <- plot_grid(p2.1, p2.2, p2.3,  align="v", nrow=1)
-# # pdf(paste("view_usefulness_real_data/plots/", "famsd_cor_two_way_2.pdf", sep=""), width=10)
-# # gg_color_hue <- function(n){
-# #   hues = seq(15, 375, length=n + 1)
-# #   hcl(h=hues, l=65, c=100)[1:n]
-# # }
-# # cols <- gg_color_hue(length(levels(score_summ$error_level)))
-# p3.1 <- ggplot(cor_famsd_df[cor_famsd_df$h2s == 0.1 , ], 
-#        aes(as.numeric(effective_marker_sizes))) +
-#   geom_point(aes(y=cor, colour="prediction from model")) +
-#   geom_point(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents")) +
-#   geom_smooth(aes(y=cor, colour="prediction from model"), method="loess") +
-#   geom_smooth(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents"), 
-#               method="loess") +
-#   ylim(-0.25, 1) +
-#   xlab("number of causal loci") +
-#   ylab("accuracy/correlation") +
-#   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
-#   guides(color=guide_legend(nrow=1)) + 
-#   theme(legend.position="bottom") +
-#   # ggtitle("accuracy of predicting family SD of BV, BayesC")
-#   theme_minimal_grid(font_size=10) + 
-#   theme(strip.background = element_blank(),
-#         strip.text.x = element_blank())
-# # dev.off()
-# p3.2 <- ggplot(cor_famsd_df[cor_famsd_df$h2s == 0.5, ], 
-#                aes(as.numeric(effective_marker_sizes))) +
-#   geom_point(aes(y=cor, colour="prediction from model")) +
-#   geom_point(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents")) +
-#   geom_smooth(aes(y=cor, colour="prediction from model"), method="loess") +
-#   geom_smooth(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents"), 
-#               method="loess") +
-#   theme(legend.position="bottom") +
-#   ylim(-0.25, 1) +
-#   xlab("number of causal loci") +
-#   ylab("accuracy/correlation") +
-#   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
-#   guides(color=guide_legend(nrow=1)) + 
-#   theme_minimal_grid(font_size=10) + 
-#   theme(strip.background = element_blank(),
-#         strip.text.x = element_blank())
 
-ggplot(cor_famsd_df, aes(as.numeric(effective_marker_sizes))) +
-  geom_point(aes(y=cor, colour="prediction from model")) +
-  geom_point(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents")) +
-  geom_smooth(aes(y=cor, colour="prediction from model"), method="loess") +
-  geom_smooth(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents"), 
-              method="loess") +
-  facet_wrap(~h2s) +
-  theme(legend.position="bottom") +
-  xlab("number of causal loci") +
-  ylab("accuracy/correlation") +
-  scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
-  ggtitle("accuracy of predicting family SD of BV, BayesC")
-p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c(0.9, 0.5, 0.1), ], 
+
+# cor_fammean_df$cor_het_mar <- cor_famsd_df$cor_het_mar
+# cor_fammean_df$type <- "mean"
+# cor_famsd_df$type <- "sd"
+
+
+
+p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
              aes(as.numeric(effective_marker_sizes), cor)) + 
   geom_point() + 
   geom_smooth(method="loess") + 
   facet_wrap(~h2s) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
+  ylim(0, 1) + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
-  theme_minimal_grid(font_size=10)
-# dev.off()
-save_plot(paste("view_usefulness/plots/", "fammean_cor_2.pdf", sep=""),
-          p1, 
-          base_width=6.5, base_height=2.17)
+  theme_minimal_grid(font_size=10) + 
+  theme(axis.title.x=element_blank(),
+       axis.text.x=element_blank(),
+       axis.ticks.x=element_blank())
 
-p3 <- ggplot(cor_famsd_df[cor_famsd_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
+# save_plot(paste("view_usefulness/plots/", "fammean_cor_2.pdf", sep=""),
+#           p1, 
+#           base_width=6.5, base_height=2.17)
+
+p2 <- ggplot(cor_famsd_df[cor_famsd_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
                aes(as.numeric(effective_marker_sizes))) +
   geom_point(aes(y=cor, colour="prediction from model")) +
   geom_point(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents")) +
@@ -673,24 +555,29 @@ p3 <- ggplot(cor_famsd_df[cor_famsd_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 
   geom_smooth(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents"), 
               method="loess") +
   facet_wrap(~h2s) + 
-  ylim(-0.25, 1) +
+  # ylim(-0.25, 1) +
   xlab("number of causal loci") +
-  ylab("accuracy/correlation") +
+  ylab("accuracy") +
+  ylim(0, 1) + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
   guides(color=guide_legend(nrow=1)) + 
   theme_minimal_grid(font_size=10) + 
-  theme(strip.background = element_blank())
-# prow3 <- plot_grid(p3.1 + theme(legend.position="none"), 
-#                    p3.2 + theme(legend.position="none"), 
-#                    p3.3 + theme(legend.position="none"),  align="v", nrow=1)
-# legend <- get_legend(p3.1)
-# prow <- plot_grid(p2.1, p2.2, p2.3,
-#                   p3.1 + theme(legend.position="none"), 
-#                   p3.2 + theme(legend.position="none"), 
-#                   p3.3 + theme(legend.position="none"), align="vh", ncol=3, nrow=2)
-save_plot(paste("view_usefulness/plots/", "famsd_cor_two_way_2.pdf", sep=""), 
-          plot_grid(p3 + theme(legend.position="none")), 
-          base_width=6.5, base_height=2.17)
+  theme(strip.text.x = element_blank(), 
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+  # theme(strip.background = element_blank())
+
+save_plot(paste("view_usefulness/plots/", "fammean_famsd_cor.pdf", sep=""), 
+          plot_grid(p1, p2 + theme(legend.position="none"), labels="auto", ncol=1, align="h", axis="tb"), 
+          base_width=6.5, base_height = 6.5)
+
+save_plot(paste("view_usefulness/plots/", "new.pdf", sep=""), 
+          plot_grid(p1, p2 + theme(legend.position="none") + 
+                      xlab("number of causal loci") + 
+                      scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)), 
+                    labels="auto", ncol=1), 
+          base_width=6.5, base_height = 6.5)
 
 
 
@@ -1217,5 +1104,5 @@ dev.off()
 
 
 
-
+# cord fixed, ggplot
 

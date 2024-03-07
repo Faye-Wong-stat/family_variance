@@ -140,7 +140,7 @@ for (i in 1:436){
 }
 
 saveRDS(trio_genotype, file="get_genotype_errors/trio_genotype.rds")
-# trio_genotype <- readRDS("codes/get_genotype_errors_trio_genotype.rds")
+# trio_genotype <- readRDS("get_genotype_errors/trio_genotype.rds")
 
 
 
@@ -197,7 +197,7 @@ for (i in 1:436){
 }
 
 saveRDS(trio_genotype2, file="get_genotype_errors/trio_genotype2.rds")
-# trio_genotype2 <- readRDS("codes/get_genotype_errors_trio_genotype2.rds")
+# trio_genotype2 <- readRDS("get_genotype_errors/trio_genotype2.rds")
 
 # trio_genotype3 is the trios with homozygous parents 
 trio_genotype3 <- array(NA, dim=dim(trio_genotype2))
@@ -218,10 +218,13 @@ for (i in 1:436){
   for (j in 1:28){
     index_cor_off = 
       apply(trio_genotype3[, 1:homo_par_num[j, i], j, i], 2, FUN=get_index_homo_par_cor_off)
+    index_incor_off = which(!index_cor_off)
     index_cor_off = which(index_cor_off)
     homo_par_cor_off_num[j, i] = length(index_cor_off)
+    
   }
 }
+trio_genotype3[, head(index_incor_off, 20), j, i]
 sum(homo_par_cor_off_num)
 # [1] 8,708,064
 1 - 8708064 / 10846295
@@ -232,9 +235,9 @@ saveRDS(trio_genotype3, file="get_genotype_errors/trio_genotype3.rds")
 saveRDS(homo_par_num, file="get_genotype_errors/homo_par_num.rds")
 saveRDS(homo_par_cor_off_num, file="get_genotype_errors/homo_par_cor_off_num.rds")
 
-# trio_genotype3 <- readRDS("codes/get_genotype_errors_trio_genotype3.rds")
-# homo_par_num <- readRDS("codes/get_genotype_errors_homo_par_num.rds")
-# homo_par_cor_off_num <- readRDS("codes/get_genotype_errors_homo_par_cor_off_num.rds")
+# trio_genotype3 <- readRDS("get_genotype_errors/trio_genotype3.rds")
+# homo_par_num <- readRDS("get_genotype_errors/homo_par_num.rds")
+# homo_par_cor_off_num <- readRDS("get_genotype_errors/homo_par_cor_off_num.rds")
 
 
 
@@ -290,6 +293,11 @@ saveRDS(trio_genotype4, file="get_genotype_errors/trio_genotype4.rds")
 saveRDS(trio_genotype5, file="get_genotype_errors/trio_genotype5.rds")
 saveRDS(homo_par_num_shuff, file="get_genotype_errors/homo_par_num_shuff.rds")
 saveRDS(homo_par_cor_off_num_shuff, file="get_genotype_errors/homo_par_cor_off_num_shuff.rds")
+
+# trio_genotype4 <- readRDS("get_genotype_errors/trio_genotype4.rds")
+# trio_genotype5 <- readRDS("get_genotype_errors/trio_genotype5.rds")
+# homo_par_num_shuff <- readRDS("get_genotype_errors/homo_par_num_shuff.rds")
+# homo_par_cor_off_num_shuff <- readRDS("get_genotype_errors/homo_par_cor_off_num_shuff.rds")
 
 
 

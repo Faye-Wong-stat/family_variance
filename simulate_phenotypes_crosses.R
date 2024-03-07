@@ -14,7 +14,7 @@ offsprings_name <- args[1]
 
 
 
-# i <- 1
+# i <- 179
 # file_names <- list.files("simulate_crosses/", pattern=".rds")
 # offsprings_name <- paste("simulate_crosses/", file_names[i], sep="")
 temp <- readRDS(offsprings_name)
@@ -52,7 +52,7 @@ offsprings_genotype[temp=="0|0"] <- -1
 offsprings_genotype[temp=="1|1"] <- 1
 offsprings_genotype <- offsprings_genotype[, !remove_marker_indices]
 dim(offsprings_genotype)
-# [1]   200 30811
+# [1]   200 30859
 
 # calculate offspring true BV
 offsprings_Z <- vector(mode="list", length=length(alphas))

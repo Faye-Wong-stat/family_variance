@@ -63,7 +63,7 @@ for (i in 1:436){
 dim(trio_geno)
 # [1] 37285     3   436
 saveRDS(trio_geno, "get_errors/trio_geno.rds")
-# trio_geno <- readRDS("codes/get_errors_trio_geno.rds")
+# trio_geno <- readRDS("get_errors/trio_geno.rds")
 
 index_homoz_par_sort <- apply(trio_geno, c(1, 3), FUN=get_index_homoz_par_sort)
 # sum(index_homoz_par_sort[2, ,], na.rm=T)
@@ -80,14 +80,14 @@ index_homoz_par_02 <- index_homoz_par_02[, rep(1,3), ]
 trio_geno_02 <- array(NA, dim=dim(trio_geno))
 trio_geno_02[which(index_homoz_par_02)] <- trio_geno[which(index_homoz_par_02)]
 # sum(!is.na(trio_geno_02[, 3, ]))
-# [1] 663346
+# [1] 663850
 # matches with 
 # sum(index_homoz_par_sort[2, ,], na.rm=T)
 
 error_rate_02 <- apply(trio_geno_02, c(1, 3), FUN=get_index_homoz_par_cor_off)
 error_rate_02_means <- apply(error_rate_02, 2, mean, na.rm=T)
 pdf("get_errors/plots/p1.pdf")
-hist(error_rate_02_means)
+hist(error_rate_02_means, xlab="percentage of correct offspring genotype per trio")
 # plot(density(na.omit(error_rate_02_means)))
 dev.off()
 
@@ -96,9 +96,14 @@ index_off_low_error <- apply(error_rate_02, 2, function(x){
 })
 length(which(index_off_low_error))
 # [1] 294
+index_off_low_error_90 <- apply(error_rate_02, 2, function(x){
+  ifelse(mean(x, na.rm=T) > 0.9, T, F)
+})
+length(which(index_off_low_error_90))
+# [1] 322
 
 saveRDS(index_off_low_error, "get_errors/index_off_low_error.rds")
-# index_off_low_error <- readRDS("codes/get_errors_index_off_low_error.rds")
+# index_off_low_error <- readRDS("get_errors/index_off_low_error.rds")
 
 error_rate_02_exam <- apply(trio_geno_02[, , which(index_off_low_error)],
                        c(1, 3),
@@ -109,7 +114,7 @@ mean(error_rate_02_exam_means)
 1 - 0.9721866
 # [1] 0.0278134
 pdf("get_errors/plots/p2.pdf")
-hist(error_rate_02_exam_means)
+hist(error_rate_02_exam_means, xlab="percentage of correct offspring genotype per trio")
 dev.off()
 
 
