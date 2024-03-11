@@ -1,4 +1,4 @@
-setwd("family_variance/")
+setwd("~/family_variance/")
 # library(vcfR)
 
 
@@ -16,7 +16,7 @@ rowcol <- function(ix, n){
 
 
 
-marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv", row.names=1)
+marker_info_cM_parent <- readRDS("get_markers_cM/marker_info_cM_parent.rds")
 # marker_info_cM_valid <- read.csv("get_markers_cM/marker_info_cM_valid.csv")
 # marker_matrix <- read.csv("cleaned_data/marker_matrix.csv", row.names=1, check.names=F)
 # phased_marker_parent <- read.vcfR("phased_data/phased_parent.vcf")
@@ -36,9 +36,9 @@ marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv", ro
 marker_info_cM_parent2 <- marker_info_cM_parent[!is.na(marker_info_cM_parent$cM), ]
 # marker_info_cM_valid <- marker_info_cM_valid[!is.na(marker_info_cM_valid$cM), ]
 dim(marker_info_cM_parent)
-# [1] 37285    10
+# [1] 37282    10
 dim(marker_info_cM_parent2)
-# [1] 34914    10
+# [1] 34911    10
 
 
 

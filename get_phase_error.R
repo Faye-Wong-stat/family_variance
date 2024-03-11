@@ -165,13 +165,13 @@ saveRDS(correct_phases, "get_phase_error/correct_phases.rds")
 
 
 
-marker_matrix <- read.csv("generate_vcffiles/marker_matrix.csv", row.names=1, check.names=F)
-marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv", row.names=1)
-marker_info_cM_valid <- read.csv("get_markers_cM/marker_info_cM_valid.csv", row.names=1)
+marker_matrix <- readRDS("generate_vcffiles/marker_matrix.rds")
+marker_info_cM_parent <- readRDS("get_markers_cM/marker_info_cM_parent.rds")
+marker_info_cM_valid <- readRDS("get_markers_cM/marker_info_cM_valid.rds")
 # marker_info_cM_parent <- read.csv("cleaned_data/marker_info_cM_parent.csv", row.names=1)
 # marker_info_cM_valid <- read.csv("cleaned_data/marker_info_cM_valid.csv", row.names=1)
-pedigree_valid <- read.csv("generate_vcffiles/pedigree_valid.csv")
-index_low_geno_error <- readRDS("get_errors/index_off_low_error.rds")
+pedigree_valid <- readRDS("generate_vcffiles/pedigree_valid.rds")
+# index_low_geno_error <- readRDS("get_errors/index_off_low_error.rds")
 # marker_matrix <- read.csv("cleaned_data/marker_matrix.csv", row.names=1, check.names=F)
 
 phased_marker_parent <- read.vcfR("phased_data/phased_parent.vcf")
@@ -183,14 +183,14 @@ rownames(phased_marker_matrix_parent) <- phased_marker_info_parent$ID
 
 cM_dist_markers <- readRDS("get_markers_dist/cM_dist_markers.rds")
 
-par1_names <- pedigree_valid$Integrated_P1
-par2_names <- pedigree_valid$Integrated_P2
-off_names <- pedigree_valid$Accession_ID
+par1_names <- pedigree_valid$P1
+par2_names <- pedigree_valid$P2
+off_names <- pedigree_valid$ID
 chrom_names <- unique(marker_info_cM_parent[,"CHROM"])
 
-par1_names_low_geno_error <- par1_names[which(index_low_geno_error)]
-par2_names_low_geno_error <- par2_names[which(index_low_geno_error)]
-off_names_low_geno_error <- off_names[which(index_low_geno_error)]
+# par1_names_low_geno_error <- par1_names[which(index_low_geno_error)]
+# par2_names_low_geno_error <- par2_names[which(index_low_geno_error)]
+# off_names_low_geno_error <- off_names[which(index_low_geno_error)]
 
 marker_info_cM_parent2 <- marker_info_cM_parent[!is.na(marker_info_cM_parent$cM), ]
 
@@ -216,13 +216,13 @@ for (i in 1:4){
   }
 }
 
-score <- array(NA, dim=c(4, 1000, 5, length(chrom_names), length(off_names_low_geno_error)))
-for (i in 1:length(off_names_low_geno_error)){
+score <- array(NA, dim=c(4, 1000, 5, length(chrom_names), length(off_names)))
+for (i in 1:length(off_names)){
   par1_geno = as.character(phased_marker_matrix_parent[, colnames(phased_marker_matrix_parent)==
-                                                         par1_names_low_geno_error[i]])
+                                                         par1_names[i]])
   par2_geno = as.character(phased_marker_matrix_parent[, colnames(phased_marker_matrix_parent)==
-                                                         par2_names_low_geno_error[i]])
-  off_geno = as.character(marker_matrix[, colnames(marker_matrix)==off_names_low_geno_error[i]])
+                                                         par2_names[i]])
+  off_geno = as.character(marker_matrix[, colnames(marker_matrix)==off_names[i]])
   
   par1A = gsub("\\|[01]", "", par1_geno)
   par1B = gsub("[01]\\|", "", par1_geno)

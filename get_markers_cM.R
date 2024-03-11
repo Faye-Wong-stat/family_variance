@@ -1,13 +1,13 @@
-setwd("family_variance/")
+setwd("~/family_variance/")
 library(ggplot2)
 
 
 
 # load the data
-marker_info <- read.csv("generate_vcffiles/marker_info.csv", row.names=1)
-marker_matrix_valid <- read.csv("generate_vcffiles/marker_matrix_valid.csv", row.names=1)
-marker_info_valid <- read.csv("generate_vcffiles/marker_info_valid.csv", row.names=1)
-marker_info_parent <- read.csv("generate_vcffiles/marker_info_parent.csv", row.names=1)
+marker_info <- readRDS("generate_vcffiles/marker_info.rds")
+marker_matrix_valid <- readRDS("generate_vcffiles/marker_matrix_valid.rds")
+marker_info_valid <- readRDS("generate_vcffiles/marker_info_valid.rds")
+marker_info_parent <- readRDS("generate_vcffiles/marker_info_parent.rds")
 genetic_map <- read.csv("provided_data/20A823_Genetic_Map.csv", row.names=1)
 
 genetic_map$Marker <- gsub("-", ".", genetic_map$Marker)
@@ -357,8 +357,8 @@ dev.off()
 
 marker_info_cM_valid$cM <- marker_info_cM_parent$cM
 
-write.csv(marker_info_cM_parent, "get_markers_cM/marker_info_cM_parent.csv")
-write.csv(marker_info_cM_valid, "get_markers_cM/marker_info_cM_valid.csv")
+saveRDS(marker_info_cM_parent, "get_markers_cM/marker_info_cM_parent.rds")
+saveRDS(marker_info_cM_valid, "get_markers_cM/marker_info_cM_valid.rds")
 
 
 

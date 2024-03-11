@@ -1,3 +1,6 @@
+### some functions are wrong, fix them!
+
+
 setwd("~/family_variance/")
 # library(vcfR)
 
@@ -62,9 +65,9 @@ get_index_homo_par_sort <- function(vec){
 
 
 
-marker_info <- read.csv("generate_vcffiles/marker_info.csv", row.names=1, check.names=F)
-marker_matrix <- read.csv("generate_vcffiles/marker_matrix.csv", row.names=1, check.names=F)
-pedigree_valid <- read.csv("generate_vcffiles/pedigree_valid.csv")
+marker_info <- readRDS("generate_vcffiles/marker_info.rds")
+marker_matrix <- readRDS("generate_vcffiles/marker_matrix.rds")
+pedigree_valid <- readRDS("generate_vcffiles/pedigree_valid.rds")
 
 # marker_info_valid <- read.csv("cleaned_data/marker_info_valid.csv", row.names=1, check.names=F)
 # marker_matrix_valid <- read.csv("cleaned_data/marker_matrix_valid.csv", row.names=1, check.names=F)
@@ -100,14 +103,16 @@ rownames(marker_matrix2) <- rownames(marker_matrix)
 # phased_marker_matrix_parent2[phased_marker_matrix_parent=="1|1"] <- 2
 # colnames(phased_marker_matrix_parent2) <- colnames(phased_marker_matrix_parent)
 
-off_names <- pedigree_valid$Accession_ID
-par1_names <- pedigree_valid$Integrated_P1
-par2_names <- pedigree_valid$Integrated_P2
+off_names <- pedigree_valid$ID
+par1_names <- pedigree_valid$P1
+par2_names <- pedigree_valid$P2
 chrom_names <- unique(marker_info[,"CHROM"])
 set.seed(1)
 off_names_shuff <- sample(off_names, replace=F)
 head(off_names_shuff)
-# [1] 16C005P028 16C536P008 16C050P005 16C017P035 16C061P028 16C048P012
+# [1] "16C099P009" "16C051P013" "16C046P015" "16C095P036" "16C089P035"
+# [6] "16C056P013"
+
 
 
 {
@@ -122,8 +127,8 @@ head(off_names_shuff)
 
 # how many parents genotypes are imputated? (missing)
 # trio_genotype in format of "0/0", "0/1", "1/1"
-trio_genotype <- array("", dim=c(3, 2000, 28, 436))
-for (i in 1:436){
+trio_genotype <- array("", dim=c(3, 2000, 28, 417))
+for (i in 1:417){
   off_geno = as.character(marker_matrix[, colnames(marker_matrix)==off_names[i]])
   par1_geno = as.character(marker_matrix[, colnames(marker_matrix)==par1_names[i]])
   par2_geno = as.character(marker_matrix[, colnames(marker_matrix)==par2_names[i]])
@@ -146,41 +151,41 @@ saveRDS(trio_genotype, file="get_genotype_errors/trio_genotype.rds")
 
 missing_genotype <- apply(trio_genotype[2:3, , , ], c(2, 3, 4), FUN=get_missing_genotype)
 sum(missing_genotype==0, na.rm=T)
-# [1] 15,914,324
+# [1] 15294144
 sum(missing_genotype==1, na.rm=T)
 # [1] 0
 sum(missing_genotype==2, na.rm=T)
-# [1] 341,936
-15914324 + 341936 == 436 * 37285
+# [1] 252450
+15294144 + 252450 == 417 * 37282
 # TRUE
-15914324 + 341936
-# [1] 16,256,260
+15294144 + 252450
+# [1] 15546594
 # total number of markers
 
 missing_0_parents_off <- 0
-for (i in 1:436){
+for (i in 1:417){
   for (j in 1:28){
     off_geno = trio_genotype[1, which(missing_genotype[, j, i]==0), j, i]
     missing_0_parents_off = missing_0_parents_off + sum(is.na(off_geno))
   }
 }
-# out of the 15,914,324 markers that both parental markers are genotyped, 
-# 140,911 of the offspring markers are not genotyped 
+# out of the 15294144 markers that both parental markers are genotyped, 
+# 146915 of the offspring markers are not genotyped 
 missing_2_parents_off <- 0
-for (i in 1:436){
+for (i in 1:417){
   for (j in 1:28){
     off_geno = trio_genotype[1, which(missing_genotype[, j, i]==2), j, i]
     missing_2_parents_off = missing_2_parents_off + sum(is.na(off_geno))
   }
 }
-# out of the 341,292 markers that neither parental markers is genotyped, 
-# 12,959 of the offspring markers are not genotyped 
+# out of the 252450 markers that neither parental markers is genotyped, 
+# 18778 of the offspring markers are not genotyped 
 
 
 
 # trio_genotype2 in format of 0, 1, 2
-trio_genotype2 <- array(NA, dim=c(3, 2000, 28, 436))
-for (i in 1:436){
+trio_genotype2 <- array(NA, dim=c(3, 2000, 28, 417))
+for (i in 1:417){
   off_geno = marker_matrix2[, colnames(marker_matrix2)==off_names[i]]
   par1_geno = marker_matrix2[, colnames(marker_matrix2)==par1_names[i]]
   par2_geno = marker_matrix2[, colnames(marker_matrix2)==par2_names[i]]
@@ -201,8 +206,8 @@ saveRDS(trio_genotype2, file="get_genotype_errors/trio_genotype2.rds")
 
 # trio_genotype3 is the trios with homozygous parents 
 trio_genotype3 <- array(NA, dim=dim(trio_genotype2))
-homo_par_num <- matrix(NA, nrow=28, ncol=436)
-for (i in 1:436){
+homo_par_num <- matrix(NA, nrow=28, ncol=417)
+for (i in 1:417){
   for (j in 1:28){
     index_homo_par = apply(trio_genotype2[, , j, i], 2, FUN=get_index_homo_par)
     index_homo_par = which(index_homo_par)
@@ -211,10 +216,10 @@ for (i in 1:436){
   }
 }
 sum(homo_par_num)
-# [1] 10,846,295
+# [1] 10445472
 
-homo_par_cor_off_num <- matrix(NA, nrow=28, ncol=436)
-for (i in 1:436){
+homo_par_cor_off_num <- matrix(NA, nrow=28, ncol=417)
+for (i in 1:417){
   for (j in 1:28){
     index_cor_off = 
       apply(trio_genotype3[, 1:homo_par_num[j, i], j, i], 2, FUN=get_index_homo_par_cor_off)
@@ -226,9 +231,9 @@ for (i in 1:436){
 }
 trio_genotype3[, head(index_incor_off, 20), j, i]
 sum(homo_par_cor_off_num)
-# [1] 8,708,064
-1 - 8708064 / 10846295
-# [1] 0.1971393
+# [1] 8235224
+1 - 8235224 / 10445472
+# [1] 0.2115987
 # genotyping error rate with homozygous parental markers and offspring marker
 
 saveRDS(trio_genotype3, file="get_genotype_errors/trio_genotype3.rds")
@@ -242,8 +247,8 @@ saveRDS(homo_par_cor_off_num, file="get_genotype_errors/homo_par_cor_off_num.rds
 
 
 # trio_genotype4 in format of 0, 1, 2, but with shuffled offspring
-trio_genotype4 <- array(NA, dim=c(3, 2000, 28, 436))
-for (i in 1:436){
+trio_genotype4 <- array(NA, dim=c(3, 2000, 28, 417))
+for (i in 1:417){
   off_geno = marker_matrix2[, colnames(marker_matrix2)==off_names_shuff[i]]
   par1_geno = marker_matrix2[, colnames(marker_matrix2)==par1_names[i]]
   par2_geno = marker_matrix2[, colnames(marker_matrix2)==par2_names[i]]
@@ -261,8 +266,8 @@ for (i in 1:436){
 
 # trio_genotype5 is the trios with homozygous parents and shuffled offsprings
 trio_genotype5 <- array(NA, dim=dim(trio_genotype4))
-homo_par_num_shuff <- matrix(NA, nrow=28, ncol=436)
-for (i in 1:436){
+homo_par_num_shuff <- matrix(NA, nrow=28, ncol=417)
+for (i in 1:417){
   for (j in 1:28){
     index_homo_par = apply(trio_genotype4[, , j, i], 2, FUN=get_index_homo_par)
     index_homo_par = which(index_homo_par)
@@ -271,11 +276,11 @@ for (i in 1:436){
   }
 }
 sum(homo_par_num_shuff)
-# [1] 10,836,901
+# [1] 10432820
 # this number is diff from sum(homo_par_num) because some trio were discarded/added due to NA
 
-homo_par_cor_off_num_shuff <- matrix(NA, nrow=28, ncol=436)
-for (i in 1:436){
+homo_par_cor_off_num_shuff <- matrix(NA, nrow=28, ncol=417)
+for (i in 1:417){
   for (j in 1:28){
     index_cor_off = 
       apply(trio_genotype5[, 1:homo_par_num_shuff[j, i], j, i], 2, FUN=get_index_homo_par_cor_off)
@@ -284,9 +289,9 @@ for (i in 1:436){
   }
 }
 sum(homo_par_cor_off_num_shuff)
-# [1] 7,626,557
-1 - 7626557/10836901
-# [1] 0.2962419
+# [1] 6992074
+1 - 6992074/10432820
+# [1] 0.3298002
 # genotyping error rate with homozygous parental markers and shuffled offspring
 
 saveRDS(trio_genotype4, file="get_genotype_errors/trio_genotype4.rds")
@@ -306,11 +311,11 @@ saveRDS(homo_par_cor_off_num_shuff, file="get_genotype_errors/homo_par_cor_off_n
 trio_genotype3_00 <- array(NA, dim=dim(trio_genotype3))
 trio_genotype3_02 <- array(NA, dim=dim(trio_genotype3))
 trio_genotype3_22 <- array(NA, dim=dim(trio_genotype3))
-homo_par_num_00 <- matrix(NA, nrow=28, ncol=436)
-homo_par_num_02 <- matrix(NA, nrow=28, ncol=436)
-homo_par_num_22 <- matrix(NA, nrow=28, ncol=436)
+homo_par_num_00 <- matrix(NA, nrow=28, ncol=417)
+homo_par_num_02 <- matrix(NA, nrow=28, ncol=417)
+homo_par_num_22 <- matrix(NA, nrow=28, ncol=417)
 
-for (i in 1:436){
+for (i in 1:417){
   # print(i)
   for (j in 1:28){
     # print(j)
@@ -338,10 +343,10 @@ for (i in 1:436){
   }
 }
 
-homo_par_cor_off_num_00 <- matrix(NA, nrow=28, ncol=436)
-homo_par_cor_off_num_02 <- matrix(NA, nrow=28, ncol=436)
-homo_par_cor_off_num_22 <- matrix(NA, nrow=28, ncol=436)
-for (i in 1:436){
+homo_par_cor_off_num_00 <- matrix(NA, nrow=28, ncol=417)
+homo_par_cor_off_num_02 <- matrix(NA, nrow=28, ncol=417)
+homo_par_cor_off_num_22 <- matrix(NA, nrow=28, ncol=417)
+for (i in 1:417){
   for (j in 1:28){
     index_cor_off = 
       apply(trio_genotype3_00[, 1:homo_par_num_00[j, i], j, i], 2, FUN=get_index_homo_par_cor_off)
@@ -349,7 +354,7 @@ for (i in 1:436){
     homo_par_cor_off_num_00[j, i] = length(index_cor_off)
   }
 }
-for (i in 1:436){
+for (i in 1:417){
   for (j in 1:28){
     if (homo_par_num_02[j, i] != 0){
       index_cor_off = 
@@ -359,7 +364,7 @@ for (i in 1:436){
     }
   }
 }
-for (i in 1:436){
+for (i in 1:417){
   for (j in 1:28){
     index_cor_off = 
       apply(trio_genotype3_22[, 1:homo_par_num_22[j, i], j, i], 2, FUN=get_index_homo_par_cor_off)
@@ -369,26 +374,26 @@ for (i in 1:436){
 }
 
 sum(homo_par_num_00)
-# [1] 4659480
+# [1] 4469483
 sum(homo_par_num_02)
 # [1] 0
 sum(homo_par_num_22)
-# [1] 6186815
+# [1] 5975989
 sum(homo_par_cor_off_num_00)
-# [1] 3666338
+# [1] 3439412
 sum(homo_par_cor_off_num_02, na.rm=T)
 # [1] 0
 sum(homo_par_cor_off_num_22)
-# [1] 5041726
-1 - 3666338 / 4659480
-# [1] 0.2131444
+# [1] 4795812
+1 - 3439412 / 4469483
+# [1] 0.2304676
 # genotyping error rate with 0, 0 parents
-1 - 5037199 / 6186815
-# [1] 0.1858171
+1 - 4795812 / 5975989
+# [1] 0.1974865
 # genotyping error rate with 2, 2 parents
 
 # there are no (0, 2) parental genotype
-# for (i in 1:436){
+# for (i in 1:417){
 #   for (j in 1:28){
 #     print(length(which(apply(trio_genotype3[2:3, , j, i], 2, FUN=function(x){setequal(x, c(0, 2))}))))
 #   }

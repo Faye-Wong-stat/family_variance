@@ -16,7 +16,7 @@ phased_marker_matrix <- phased_marker_matrix[, -1]
 rownames(phased_marker_info) <- phased_marker_info$ID
 rownames(phased_marker_matrix) <- phased_marker_info$ID
 
-marker_info_cM_parent <- read.csv("get_markers_cM/marker_info_cM_parent.csv", row.names=1)
+marker_info_cM_parent <- readRDS("get_markers_cM/marker_info_cM_parent.rds")
 index_NA_cM <- is.na(marker_info_cM_parent$cM)
 marker_info_cM_parent <- marker_info_cM_parent[!index_NA_cM, ]
 phased_marker_info <- phased_marker_info[!index_NA_cM, ]
@@ -31,7 +31,7 @@ indiv_names <- colnames(phased_marker_matrix)
 chrom_names <- unique(marker_info_cM_parent[,"CHROM"])
 
 dim(marker_info_cM_parent)
-# [1] 34914    10
+# [1] 34911    10
 
 
 
@@ -51,11 +51,11 @@ phased_marker_info <- phased_marker_info[!is.na(marker_info_cM_parent$cM), ]
 marker_info_cM_parent <- marker_info_cM_parent[!is.na(marker_info_cM_parent$cM), ]
 
 dim(marker_info_cM_parent)
-# [1] 34914    10
+# [1] 34911    10
 dim(phased_marker_info)
-# [1] 34914     9
+# [1] 34911     9
 dim(phased_marker_matrix)
-# [1] 34914   999
+# [1] 34911   1035
 
 
 
