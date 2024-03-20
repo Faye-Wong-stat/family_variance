@@ -57,6 +57,9 @@ for (j in 1:length(parents_heter_sites_noncausal)){
   }
 }
 
+# saveRDS(parents_Z_noneffective, "view_usefulness/parents_Z_noneffective.rds")
+# saveRDS(parents_heter_sites_noncausal, "parents_Z_noneffective/parents_heter_sites_noncausal.rds")
+
 
 
 # BV <- lapply(file_names_BV, FUN=function(x){
@@ -210,7 +213,6 @@ for (h in 1:length(si)){
 
 
 
-
 # predict fam mean bv
 # predict fam sd bv with two methods 
 # predict fam use with/without sd 
@@ -291,26 +293,32 @@ for (i in 1:length(h2s)){
     }
   }
 }
-cor_fammean_df <- data.frame(h2s = rep(paste("h2 = ", h2s, sep=""), each=(6*20)), 
+cor_fammean_df <- data.frame(h2s = rep(paste("h^2 == ", h2s, sep=""), each=(6*20)), 
                                 effective_marker_sizes = 
                                   as.character(rep(rep(effective_marker_sizes, each=20), 5)), 
                                 cor = rep(NA, (6*5*20)))
-cor_fammean_df$effective_marker_sizes <- 
+cor_fammean_df$effective_marker_sizes <-
   factor(cor_fammean_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
+# cor_fammean_df$h2s <- factor(cor_fammean_df$h2s, levels = paste("h2 = ", h2s, sep=""))
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    cor_fammean_df$cor[((i-1)*6*20 + (j-1)*20 + 1) : ((i-1)*6*20 + (j-1)*20 + 20)] = 
+    cor_fammean_df$cor[((i-1)*6*20 + (j-1)*20 + 1) : ((i-1)*6*20 + (j-1)*20 + 20)] =
       cor_fammean[[i]][[j]]
   }
 }
+
+# saveRDS(cor_fammean_df, "view_usefulness/cor_fammean_df.rds")
+# saveRDS(lbs, "view_usefulness/lbs.rds")
 pdf(paste("view_usefulness/plots/", "fammean_cor.pdf", sep=""))
 ggplot(cor_fammean_df, aes(as.numeric(effective_marker_sizes), cor)) + 
   geom_point() + 
   geom_smooth(method="loess") + 
-  facet_wrap(~h2s) + 
+  facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
+  scale_fill_discrete(labels=parse(text=lbs)) + 
+  # theme(strip.text = ggtext::element_markdown())
   ggtitle("accuracy of predicting family mean of BV, BayesC")
 dev.off()
 pdf(paste("view_usefulness/plots/", "fammean_cor_xaxis_h2s.pdf", sep=""))
@@ -457,7 +465,7 @@ for (i in 1:length(h2s)){
   }
 }
 
-cor_famsd_df <- data.frame(h2s = rep(paste("h2 = ", h2s, sep=""), each=(6*20)),
+cor_famsd_df <- data.frame(h2s = rep(paste("h^2 == ", h2s, sep=""), each=(6*20)),
                            effective_marker_sizes =
                              as.character(rep(rep(effective_marker_sizes, each=20), 5)),
                            cor = rep(NA, (6*5*20)),
@@ -527,18 +535,20 @@ dev.off()
 # cor_famsd_df$type <- "sd"
 
 
-
-p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
+# lbs <- setNames(
+#   paste("''*h^2*' = ", h2s, "'", sep=""), levels(cor_fammean_df$h2s)
+# )
+p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c("h^2 == 0.9", "h^2 == 0.5", "h^2 == 0.1"), ], 
              aes(as.numeric(effective_marker_sizes), cor)) + 
   geom_point() + 
   geom_smooth(method="loess") + 
-  facet_wrap(~h2s) + 
+  facet_wrap(~h2s, labeller = label_parsed) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) + 
+  theme_minimal_grid(font_size=10) +
   theme(axis.title.x=element_blank(),
        axis.text.x=element_blank(),
        axis.ticks.x=element_blank())
@@ -547,37 +557,35 @@ p1 <- ggplot(cor_fammean_df[cor_fammean_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h
 #           p1, 
 #           base_width=6.5, base_height=2.17)
 
-p2 <- ggplot(cor_famsd_df[cor_famsd_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1"), ], 
+p2 <- ggplot(cor_famsd_df[cor_famsd_df$h2s %in% c("h^2 == 0.9", "h^2 == 0.5", "h^2 == 0.1"), ], 
                aes(as.numeric(effective_marker_sizes))) +
   geom_point(aes(y=cor, colour="prediction from model")) +
-  geom_point(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents")) +
+  geom_point(aes(y=cor_het_mar, colour="prediction from parental heterozygosity")) +
   geom_smooth(aes(y=cor, colour="prediction from model"), method="loess") +
-  geom_smooth(aes(y=cor_het_mar, colour="correlation with # of hetero markers of parents"), 
+  geom_smooth(aes(y=cor_het_mar, colour="prediction from parental heterozygosity"), 
               method="loess") +
-  facet_wrap(~h2s) + 
+  facet_wrap(~h2s, labeller = label_parsed) + 
   # ylim(-0.25, 1) +
   xlab("number of causal loci") +
   ylab("accuracy") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
-  guides(color=guide_legend(nrow=1)) + 
-  theme_minimal_grid(font_size=10) + 
+  theme_minimal_grid(font_size=10) +
   theme(strip.text.x = element_blank(), 
-        axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
+        legend.position = "bottom")+
+  guides(color=guide_legend(nrow=1))
+  #       axis.title.x=element_blank(),
+  #       axis.text.x=element_blank(),
+  #       axis.ticks.x=element_blank())
   # theme(strip.background = element_blank())
 
-save_plot(paste("view_usefulness/plots/", "fammean_famsd_cor.pdf", sep=""), 
-          plot_grid(p1, p2 + theme(legend.position="none"), labels="auto", ncol=1, align="h", axis="tb"), 
-          base_width=6.5, base_height = 6.5)
+prow <- plot_grid(p1, 
+                  p2, 
+                  labels="auto", ncol=1, rel_heights = c(0.85, 1))
 
-save_plot(paste("view_usefulness/plots/", "new.pdf", sep=""), 
-          plot_grid(p1, p2 + theme(legend.position="none") + 
-                      xlab("number of causal loci") + 
-                      scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)), 
-                    labels="auto", ncol=1), 
-          base_width=6.5, base_height = 6.5)
+save_plot(paste("view_usefulness/plots/", "fammean_famsd_cor.pdf", sep=""), 
+          plot_grid(prow), 
+          base_width=6.5, base_height = 4.33)
 
 
 
@@ -725,8 +733,8 @@ for (h in 1:length(si)){
     }
   }
 }
-cor_famuse_df <- data.frame(si = rep(paste("si = ", round(si, 2), sep=""), each=(5*6*20)), 
-                               h2s = rep(rep(paste("h2 = ", h2s, sep=""), each=(6*20)), 4), 
+cor_famuse_df <- data.frame(si = rep(paste("si == ", round(si, 2), sep=""), each=(5*6*20)), 
+                               h2s = rep(rep(paste("h^2 == ", h2s, sep=""), each=(6*20)), 4), 
                                effective_marker_sizes = 
                                  as.character(rep(rep(effective_marker_sizes, each=20), (4*5))), 
                                cor_mean = rep(NA, (4*6*5*20)),
@@ -734,6 +742,7 @@ cor_famuse_df <- data.frame(si = rep(paste("si = ", round(si, 2), sep=""), each=
 cor_famuse_df$effective_marker_sizes <- 
   factor(cor_famuse_df$effective_marker_sizes, levels=effective_marker_sizes)
 # cor_famuse_df$si <- round(cor_famuse_df$si, 2)
+
 for (h in 1:length(si)){
   for (i in 1:length(h2s)){
     for (j in 1:length(effective_marker_sizes)){
@@ -746,7 +755,7 @@ for (h in 1:length(si)){
     }
   }
 }
-pdf(paste("view_usefulness/plots/", "famuse_cor.pdf", sep=""), width=14, height=10)
+{pdf(paste("view_usefulness/plots/", "famuse_cor.pdf", sep=""), width=14, height=10)
 ggplot(cor_famuse_df, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=cor_mean, colour="predicted from family mean BV")) + 
   geom_point(aes(y=cor_use, colour="predicted from family usefulness BV")) + 
@@ -772,8 +781,8 @@ ggplot(cor_famuse_df, aes(h2s)) +
   ggtitle("accuracy of predicting family usefulness of BV, BayesC")
 dev.off()
 pdf(paste("view_usefulness/plots/", "famuse_cor_2.pdf", sep=""), width=14, height=10)
-ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c(0.9, 0.5, 0.1) & 
-                       cor_famuse_df$si %in% c(1.4, 2.42), ], 
+ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1") & 
+                       cor_famuse_df$si %in% c("si = 1.4", "si = 2.42"), ], 
        aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=cor_mean, colour="predicted from family mean BV")) + 
   geom_point(aes(y=cor_use, colour="predicted from family usefulness BV")) + 
@@ -786,26 +795,26 @@ ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c(0.9, 0.5, 0.1) &
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
   ggtitle("accuracy of predicting family usefulness of BV, BayesC")
 dev.off()
+}
 
-
-
-p4 <- ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c("h2 = 0.9", "h2 = 0.5", "h2 = 0.1") & 
-                             cor_famuse_df$si %in% c("si = 1.4", "si = 2.42"), ], 
+p3 <- ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c("h^2 == 0.9", "h^2 == 0.5", "h^2 == 0.1") & 
+                             cor_famuse_df$si %in% c("si == 1.4", "si == 2.42"), ], 
              aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=cor_mean, colour="predicted from family mean BV")) + 
   geom_point(aes(y=cor_use, colour="predicted from family usefulness BV")) + 
   geom_smooth(aes(y=cor_mean, colour="predicted from family mean BV"), method="loess") + 
   geom_smooth(aes(y=cor_use, colour="predicted from family usefulness BV"), method="loess") + 
-  facet_grid(si~h2s) + 
-  theme(legend.position="bottom") + 
+  facet_grid(si~h2s, labeller = label_parsed) +
+  # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
   scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) + 
   guides(color=guide_legend(nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
-  theme_minimal_grid(font_size=10)
-save_plot(paste("view_usefulness_real_data/plots/", "famuse_cor_2.pdf", sep=""), 
-          plot_grid(p4 + theme(legend.position="none")), 
+  theme_minimal_grid(font_size=10) +
+  theme(legend.position="bottom") 
+save_plot(paste("view_usefulness/plots/", "famuse_cor_2.pdf", sep=""), 
+          plot_grid(p3), 
           base_width=6.5, base_height=4.33)
 
 
@@ -852,6 +861,152 @@ ggplot(cor_BV_famuse_fammean_df, aes(as.numeric(effective_marker_sizes))) +
 dev.off()
 
 
+
+
+fam_mean_sd <- data.frame(h2s = rep(h2s, each=(6*length(file_names))), 
+                          effective_marker_sizes = 
+                            rep(rep(effective_marker_sizes, each=length(file_names)), 5), 
+                          family = rep(file_names, (6*5)), 
+                          matrix(NA, nrow=(30*length(file_names)), ncol=120))
+fam_mean_sd$effective_marker_sizes <- 
+  factor(fam_mean_sd$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
+
+phenotype_types <- c()
+for (i in 1:20){
+  phenotype_types[i] = paste("BV_fammean_", i, sep="")
+}
+for (i in 21:40){
+  phenotype_types[i] = paste("BV_famsd_", (i-20), sep="")
+}
+for (i in 41:60){
+  phenotype_types[i] = paste("predY_RR_fammean_", (i-40), sep="")
+}
+for (i in 61:80){
+  phenotype_types[i] = paste("predY_RR_famsd_", (i-60), sep="")
+}
+for (i in 81:100){
+  phenotype_types[i] = paste("predY_fammean_", (i-80), sep="")
+}
+for (i in 101:120){
+  phenotype_types[i] = paste("predY_famsd_", (i-100), sep="")
+}
+names(fam_mean_sd)[4:123] <- phenotype_types
+
+for (i in 1:length(BV_fammean)){
+  for (j in 1:length(BV_fammean[[i]])){
+    fam_mean_sd[((i-1)*6*length(file_names) + (j-1)*length(file_names) + 1) : 
+                  ((i-1)*6*length(file_names) + (j-1)*length(file_names) + 520), 4:43] = 
+      cbind(BV_fammean[[i]][[j]], sqrt(BV_famvar[[i]][[j]]))
+  }
+}
+for (i in 1:length(predY_RR_fammean)){
+  for (j in 1:length(predY_RR_fammean[[i]])){
+    fam_mean_sd[((i-1)*6*length(file_names) + (j-1)*length(file_names) + 1) : 
+                  ((i-1)*6*length(file_names) + (j-1)*length(file_names) + 520), 44:83] = 
+      cbind(predY_RR_fammean[[i]][[j]], sqrt(predY_RR_famvar[[i]][[j]]))
+  }
+}
+for (i in 1:length(predY_fammean)){
+  for (j in 1:length(predY_fammean[[i]])){
+    fam_mean_sd[((i-1)*6*length(file_names) + (j-1)*length(file_names) + 1) : 
+                  ((i-1)*6*length(file_names) + (j-1)*length(file_names) + 520), 84:123] = 
+      cbind(predY_fammean[[i]][[j]], sqrt(predY_famvar[[i]][[j]]))
+  }
+}
+
+saveRDS(fam_mean_sd, "view_usefulness/fam_mean_sd.rds")
+fam_mean_sd <- readRDS("view_usefulness/fam_mean_sd.rds")
+
+
+fam_mean_sd <- fam_mean_sd[, 1:43]
+fam_mean_sd <- fam_mean_sd[fam_mean_sd$h2s==0.9, ][, 2:43]
+fam_mean_sd$effective_marker_sizes <- as.numeric(as.character(fam_mean_sd$effective_marker_sizes))
+fam_mean_sd$family <- as.character(fam_mean_sd$family)
+
+fam_mean_sd_all <- data.frame(h2s=NA, number_of_QTL=NA, family=NA, replic=NA, mean=NA, sd=NA)
+for (i in 1:nrow(fam_mean_sd)){
+  fam_mean_sd_all = rbind(fam_mean_sd_all, 
+                          data.frame(h2s=rep(NA, 20),
+                                     number_of_QTL=rep(fam_mean_sd$effective_marker_sizes[i], 20), 
+                                     family=rep(fam_mean_sd$family[i], 20), 
+                                     replic=1:20, 
+                                     mean=as.numeric(fam_mean_sd[i, 3:22][1, ]), 
+                                     sd=as.numeric(fam_mean_sd[i, 23:42][1, ])))
+}
+fam_mean_sd_all <- fam_mean_sd_all[-1, -1]
+fam_mean_sd_all[, c("parent1", "parent2")] <- 
+  t(sapply(fam_mean_sd_all$family[530:535], FUN=function(x){
+    strsplit(x, "_")[[1]]
+  }))
+fam_mean_sd_all$parents_type <- "random"
+fam_mean_sd_all <- fam_mean_sd_all[, c(1, 3, 6, 7, 8, 4, 5)]
+
+fam_mean_sd_use <- fam_mean_sd_all[rep(1:nrow(fam_mean_sd_all), 4), ]
+fam_mean_sd_use$si <- rep(si, each=nrow(fam_mean_sd_all))
+fam_mean_sd_use$si_sd <- fam_mean_sd_use$si * fam_mean_sd_use$sd
+fam_mean_sd_use$use <- fam_mean_sd_use$mean + fam_mean_sd_use$si * fam_mean_sd_use$sd
+
+fam_cor <- data.frame(number_of_QTL=rep(as.character(effective_marker_sizes), each=4*20), 
+                      si=rep(rep(paste("si = ", round(si, 2), sep=""), 6), each=20),
+                      replic=rep(1:20, 4*6),
+                      cor_use_mean=rep(NA, 4*6*20))
+
+for (i in 1:length(effective_marker_sizes)){
+  for (j in 1:length(si)){
+    for (k in 1:20){
+      temp = fam_mean_sd_use[(fam_mean_sd_use$number_of_QTL == effective_marker_sizes[i]) & 
+                               (fam_mean_sd_use$si == si[j]) & 
+                               (fam_mean_sd_use$replic == k), ]
+      fam_cor[(i-1)*4*20 + (j-1)*20 + k, "cor_use_mean"] = cor(temp$mean, temp$use)
+    }
+  }
+}
+fam_cor$number_of_QTL <- factor(fam_cor$number_of_QTL, levels=as.factor(effective_marker_sizes))
+# fam_cor$si <- factor(round(fam_cor$si, 2), levels=round(si, 2))
+fam_cor$replic <- factor(fam_cor$replic, levels=1:20)
+
+
+
+fam_var_mean_var_sd <- aggregate(fam_mean_sd_use$mean, list(fam_mean_sd_use$number_of_QTL, 
+                                                            fam_mean_sd_use$replic, 
+                                                            fam_mean_sd_use$si), var)
+colnames(fam_var_mean_var_sd) <- c("number_of_QTL", "replic", "si", "var_mean")
+fam_var_mean_var_sd$var_si_sd <- aggregate(fam_mean_sd_use$si_sd, list(fam_mean_sd_use$number_of_QTL, 
+                                                                       fam_mean_sd_use$replic, 
+                                                                       fam_mean_sd_use$si), var)[, 4]
+fam_var_mean_var_sd$si <- round(fam_var_mean_var_sd$si, 2)
+fam_var_mean_var_sd$si <- paste("si = ", (fam_var_mean_var_sd$si), sep="")
+
+fam_var_mean_var_sd_1024 <- fam_var_mean_var_sd[fam_var_mean_var_sd$number_of_QTL==1024, ]
+summary(fam_var_mean_var_sd_1024$var_mean)
+seqnc <- seq(100, 255, length.out=5)
+fam_var_mean_var_sd_1024$group <- .bincode(fam_var_mean_var_sd_1024$var_mean, seqnc)
+xlab <- cut(seq(100, 255, length.out=5), seqnc)
+xlab <- as.character(xlab)
+fam_var_mean_var_sd_1024$xlab <- NA
+for (i in 1:nrow(fam_var_mean_var_sd_1024)){
+  fam_var_mean_var_sd_1024$xlab[i] = xlab[fam_var_mean_var_sd_1024$group[i]+1]
+}
+fam_var_mean_var_sd_1024$xlab <- factor(fam_var_mean_var_sd_1024$xlab, levels=xlab)
+
+p4 <- ggplot(fam_cor, aes(x=as.numeric(number_of_QTL), y=cor_use_mean)) + 
+  geom_point() + 
+  geom_smooth() + 
+  facet_wrap(~si) + 
+  xlab("number of causal loci") + 
+  ylab("correlation between BV mean and usefulness") + 
+  scale_x_continuous(breaks=1:6, labels=as.character(effective_marker_sizes)) +
+  theme_minimal_grid(font_size=8)
+p5 <- ggplot(fam_var_mean_var_sd_1024, aes(var_mean, var_si_sd)) + 
+  geom_point() + 
+  facet_wrap(~si) + 
+  xlab("variance of mean") + 
+  ylab("variance of si*sd") +
+  theme_minimal_grid(font_size=8)
+
+save_plot("view_usefulness/plots/cor_fam_use_mean_var_sisd_mean.pdf", 
+          plot_grid(p4, p5, nrow=1, labels="auto"),
+          base_width=6.5, base_height = 4.33)
 
 
 # # corre between mean and sd*si true bv with slope 1 
@@ -915,6 +1070,8 @@ dev.off()
 # }
 # dev.off()
 
+
+# dont run this
 # corre between mean and si true bv with slope 1 
 fammean_famsd <- vector(mode="list", length=length(effective_marker_sizes))
 for (j in 1:length(effective_marker_sizes)){
@@ -960,7 +1117,7 @@ dev.off()
 
 
 
-
+# dont run this
 # plotting family mean and offspring bvs
 set.seed(1)
 family_index <- sample(1:length(BV), 50, replace=F)

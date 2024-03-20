@@ -18,3 +18,14 @@
 ## simulate_phenotypes_crosses.R
 ##### simulate_phenotypes_crosses2.R
 ## view_usefulness.R
+##### examine_usefulness.R
+## select_best_parents.R
+## simulate_crosses_best_parents.R
+## view_crosses_best_parents.R
+## view_usefulness_best_parents.R
+## plot_BV_family_mean_sd.R
+
+##### create_marker_list2.R
+## introduce_error.R
+## examine_error.R
+## view_examine_error.R

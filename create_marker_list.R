@@ -76,12 +76,26 @@ for (j in 1:length(chrom_names)){
   }
 }
 
+chrom_info <- vector(mode="list", length=length(chrom_names))
+chrom_table <- data.frame(start=NA, end=NA, length=NA)
+for (i in 1:length(chrom_names)){
+  marker_info = marker_info_cM_parent[marker_info_cM_parent$CHROM==chrom_names[i], c("CHROM", "cM")]
+  chrom_info[[i]] = marker_info$cM - min(marker_info$cM)
+  chrom_table[i, ] = c(min(marker_info$cM), 
+                       max(marker_info$cM), 
+                       (max(marker_info$cM) - min(marker_info$cM)))
+}
+
+
+
 saveRDS(marker_info_cM_parent, "create_marker_list/marker_info_cM_parent.rds")
 saveRDS(marker_list, "create_marker_list/phased_marker_list.rds")
 saveRDS(phased_marker_info, "create_marker_list/phased_marker_info.rds")
 saveRDS(phased_marker_matrix, "create_marker_list/phased_marker_matrix.rds")
 saveRDS(indiv_names, "create_marker_list/indiv_names.rds")
 saveRDS(chrom_names, "create_marker_list/chrom_names.rds")
+saveRDS(chrom_info, "create_marker_list/chrom_info.rds")
+saveRDS(chrom_table, "create_marker_list/chrom_table.rds")
 
 
 
