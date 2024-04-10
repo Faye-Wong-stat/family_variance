@@ -733,7 +733,7 @@ for (h in 1:length(si)){
     }
   }
 }
-cor_famuse_df <- data.frame(si = rep(paste("si == ", round(si, 2), sep=""), each=(5*6*20)), 
+cor_famuse_df <- data.frame(si = rep(paste("i == ", round(si, 2), sep=""), each=(5*6*20)), 
                                h2s = rep(rep(paste("h^2 == ", h2s, sep=""), each=(6*20)), 4), 
                                effective_marker_sizes = 
                                  as.character(rep(rep(effective_marker_sizes, each=20), (4*5))), 
@@ -798,7 +798,7 @@ dev.off()
 }
 
 p3 <- ggplot(cor_famuse_df[cor_famuse_df$h2s %in% c("h^2 == 0.9", "h^2 == 0.5", "h^2 == 0.1") & 
-                             cor_famuse_df$si %in% c("si == 1.4", "si == 2.42"), ], 
+                             cor_famuse_df$si %in% c("i == 1.4", "i == 2.42"), ], 
              aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=cor_mean, colour="predicted from family mean BV")) + 
   geom_point(aes(y=cor_use, colour="predicted from family usefulness BV")) + 
@@ -947,7 +947,7 @@ fam_mean_sd_use$si_sd <- fam_mean_sd_use$si * fam_mean_sd_use$sd
 fam_mean_sd_use$use <- fam_mean_sd_use$mean + fam_mean_sd_use$si * fam_mean_sd_use$sd
 
 fam_cor <- data.frame(number_of_QTL=rep(as.character(effective_marker_sizes), each=4*20), 
-                      si=rep(rep(paste("si = ", round(si, 2), sep=""), 6), each=20),
+                      si=rep(rep(paste("i = ", round(si, 2), sep=""), 6), each=20),
                       replic=rep(1:20, 4*6),
                       cor_use_mean=rep(NA, 4*6*20))
 
@@ -975,7 +975,7 @@ fam_var_mean_var_sd$var_si_sd <- aggregate(fam_mean_sd_use$si_sd, list(fam_mean_
                                                                        fam_mean_sd_use$replic, 
                                                                        fam_mean_sd_use$si), var)[, 4]
 fam_var_mean_var_sd$si <- round(fam_var_mean_var_sd$si, 2)
-fam_var_mean_var_sd$si <- paste("si = ", (fam_var_mean_var_sd$si), sep="")
+fam_var_mean_var_sd$si <- paste("i = ", (fam_var_mean_var_sd$si), sep="")
 
 fam_var_mean_var_sd_1024 <- fam_var_mean_var_sd[fam_var_mean_var_sd$number_of_QTL==1024, ]
 summary(fam_var_mean_var_sd_1024$var_mean)
@@ -1001,7 +1001,7 @@ p5 <- ggplot(fam_var_mean_var_sd_1024, aes(var_mean, var_si_sd)) +
   geom_point() + 
   facet_wrap(~si) + 
   xlab("variance of mean") + 
-  ylab("variance of si*sd") +
+  ylab("variance of i*sd") +
   theme_minimal_grid(font_size=8)
 
 save_plot("view_usefulness/plots/cor_fam_use_mean_var_sisd_mean.pdf", 

@@ -120,12 +120,12 @@ for (i in 1:nrow(cor_best_par_df)){
 cor_best_par_df$number_of_QTL <- factor(cor_best_par_df$number_of_QTL, 
                                         levels=effective_marker_sizes)
 cor_best_par_df$h2 <- paste("h^2 == ", cor_best_par_df$h2, sep="")
-cor_best_par_df$si <- paste("si == ", cor_best_par_df$si ,sep="")
+cor_best_par_df$si <- paste("i == ", cor_best_par_df$si ,sep="")
 
 
 
 p1 <- ggplot(cor_best_par_df[cor_best_par_df$h2 %in% c("h^2 == 0.9", "h^2 == 0.5", "h^2 == 0.1") & 
-                               cor_best_par_df$si %in% c("si == 1.4", "si == 2.42"), ], 
+                               cor_best_par_df$si %in% c("i == 1.4", "i == 2.42"), ], 
                aes(x=as.numeric(number_of_QTL))) +
   geom_point(aes(y=cor_ucBV_meanpred, colour="predicted from family mean BV")) +
   geom_point(aes(y=cor_ucBV_ucpred, colour="predicted from family usefulness BV")) +
