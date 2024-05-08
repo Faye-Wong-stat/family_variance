@@ -5,13 +5,13 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=20G
 #SBATCH --time=48:00:00
-#SBATCH --output=/home/wang9418/family_variance/codes/logs/run_simulate_crosses_best_parents-%A_%a.out
-#SBATCH --error=/home/wang9418/family_variance/codes/logs/run_simulate_crosses_best_parents-%A_%a.err
+#SBATCH --output=/home/wang9418/family_variance/codes/logs/run_simulate_crosses_best_parents-%A_%a.out.txt
+#SBATCH --error=/home/wang9418/family_variance/codes/logs/run_simulate_crosses_best_parents-%A_%a.err.txt
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
 #SBATCH --mail-user=faywang@ucdavis.edu
-#SBATCH --array=1-120
+#SBATCH --array=1-100
 
 echo $SLURM_ARRAY_TASK_ID
 name=($(head -n $SLURM_ARRAY_TASK_ID select_best_parents/best_parents.txt | tail -n 1 | tr -d '"'))

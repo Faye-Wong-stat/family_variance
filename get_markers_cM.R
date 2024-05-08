@@ -6,23 +6,10 @@ library(ggplot2)
 # load the data
 marker_info <- readRDS("generate_vcffiles/marker_info.rds")
 marker_matrix_valid <- readRDS("generate_vcffiles/marker_matrix_valid.rds")
-marker_info_valid <- readRDS("generate_vcffiles/marker_info_valid.rds")
-marker_info_parent <- readRDS("generate_vcffiles/marker_info_parent.rds")
 genetic_map <- read.csv("provided_data/20A823_Genetic_Map.csv", row.names=1)
 
 genetic_map$Marker <- gsub("-", ".", genetic_map$Marker)
 
-# # mark sure marker_info, marker_info_valid, and marker_info_parent are all the same
-# for (i in 1:ncol(marker_info)){
-#     if(!identical(marker_info[, i], marker_info_valid[, i])){
-#       print(i)
-#     }
-# }
-# for (i in 1:ncol(marker_info)){
-#   if(!identical(marker_info[, i], marker_info_parent[, i])){
-#     print(i)
-#   }
-# }
 
 
 # create marker_distance and marker_distance_list
@@ -297,45 +284,21 @@ for (i in 1:length(chrom_names)){
 }
 dev.off()
 
-{
-# pdf("plots/get_markers_diff_dist/regress loess cM based on 1.2k mapped markers cleaned adjusted.pdf")
-# for (i in 1:length(chrom_names)){
-#   if (chrom_names[i]=="6C"){
-#     print(
-#       ggplot(data=marker_distance_list_cleaned[[i]], aes(x=pos, y=cM)) + 
-#         geom_point() + 
-#         geom_smooth(method="loess", span=0.25) + 
-#         ggtitle(paste("cM against position in chromosome", chrom_names[i], 
-#         "after data tidying, span=0.25")) + 
-#         xlab("position")
-#     )
-#   } else{
-#     print(
-#       ggplot(data=marker_distance_list_cleaned[[i]], aes(x=pos, y=cM)) + 
-#         geom_point() + 
-#         geom_smooth(method="loess") + 
-#         ggtitle(paste("cM against position in chromosome", chrom_names[i], "after data tidying")) + 
-#         xlab("position")
-#     )
-#   }
-# }
-# dev.off()
-}
+
 
 
 
 # predict cM based on loess and lm
-marker_info_cM_parent <- marker_info_parent
-marker_info_cM_valid <- marker_info_valid
-marker_info_cM_parent$cM <- NA
-marker_info_cM_valid$cM <- NA
+marker_info$POS <- as.numeric(marker_info$POS)
+marker_info_cM <- marker_info
+marker_info_cM$cM <- NA
 
 for (i in 1:length(chrom_names)){
-  marker_info_cM_parent[marker_info_cM_parent$CHROM==chrom_names[i], "cM"] = 
+  marker_info_cM[marker_info_cM$CHROM==chrom_names[i], "cM"] = 
     predict(loess_list[[i]], 
-            newdata=data.frame(pos=marker_info_cM_parent[marker_info_cM_parent$CHROM==chrom_names[i], "POS"]))
+            newdata=data.frame(pos=marker_info_cM[marker_info_cM$CHROM==chrom_names[i], "POS"]))
 }
-sum(is.na(marker_info_cM_parent$cM))
+sum(is.na(marker_info_cM$cM))
 # [1] 2371
 
 pdf("get_markers_cM/plots/predict cM based on 1.2k mapped markers.pdf")
@@ -344,7 +307,7 @@ for (i in 1:length(chrom_names)){
     ggplot(data=marker_distance_list_cleaned[[i]], aes(x=pos, y=cM, color="training markers")) +
       geom_point(alpha=0.75) +
       geom_line(aes(x=pos, y=loess_pred, color="fitted line")) +
-      geom_point(data=marker_info_cM_parent[marker_info_cM_parent$CHROM==chrom_names[i], ],
+      geom_point(data=marker_info_cM[marker_info_cM$CHROM==chrom_names[i], ],
                  aes(x=POS, y=cM, color="predicted markers"), 
                  alpha=0.05) +
       ggtitle(paste("cM against position in chromosome", chrom_names[i])) +
@@ -355,10 +318,9 @@ for (i in 1:length(chrom_names)){
 }
 dev.off()
 
-marker_info_cM_valid$cM <- marker_info_cM_parent$cM
-
-saveRDS(marker_info_cM_parent, "get_markers_cM/marker_info_cM_parent.rds")
-saveRDS(marker_info_cM_valid, "get_markers_cM/marker_info_cM_valid.rds")
+saveRDS(marker_info_cM, "get_markers_cM/marker_info_cM_parent.rds")
+saveRDS(marker_info_cM, "get_markers_cM/marker_info_cM_valid.rds")
+saveRDS(marker_info_cM, "get_markers_cM/marker_info_cM.rds")
 
 
 

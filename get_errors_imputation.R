@@ -12,12 +12,7 @@ phased_marker_matrix_parent <- as.data.frame(phased_marker_parent@gt)
 phased_marker_info_parent$FORMAT <- phased_marker_matrix_parent$FORMAT
 phased_marker_matrix_parent <- phased_marker_matrix_parent[, -1]
 
-marker_matrix2 <- matrix(NA, nrow=nrow(marker_matrix), ncol=ncol(marker_matrix))
-marker_matrix2[marker_matrix=="0/0"] <- 0
-marker_matrix2[marker_matrix=="0/1"] <- 1
-marker_matrix2[marker_matrix=="1/1"] <- 2
-rownames(marker_matrix2) <- rownames(marker_matrix)
-colnames(marker_matrix2) <- colnames(marker_matrix)
+marker_matrix2 <- marker_matrix
 
 phased_marker_matrix_parent2 <- 
   matrix(NA, nrow=nrow(phased_marker_matrix_parent), ncol=ncol(phased_marker_matrix_parent))
@@ -111,16 +106,10 @@ error_rate_missing2 <- apply(trio_geno[, c(3, 4, 5), ], c(1, 3), FUN=function(x)
 
 
 
-saveRDS(trio_geno, "get_errors_imputation/trio_geno.rds")
-saveRDS(error_rate_missing1, "get_errors_imputation/error_rate_missing1.rds")
-saveRDS(error_rate_missing2, "get_errors_imputation/error_rate_missing2.rds")
-
-
-
 mean(error_rate_missing1, na.rm=T)
-# [1] 0.9388043
+# [1] 0.9423366
 mean(error_rate_missing2, na.rm=T)
-# [1] 0.8741175
+# [1] 0.8761329
 
 error_rate_missing1_mean <- apply(error_rate_missing1, 2, mean, na.rm=T)
 error_rate_missing2_mean <- apply(error_rate_missing2, 2, mean, na.rm=T)
@@ -136,6 +125,9 @@ dev.off()
 
 
 
+saveRDS(trio_geno, "get_errors_imputation/trio_geno.rds")
+saveRDS(error_rate_missing1, "get_errors_imputation/error_rate_missing1.rds")
+saveRDS(error_rate_missing2, "get_errors_imputation/error_rate_missing2.rds")
 
 
 

@@ -233,9 +233,9 @@ for (i in 1:length(off_names)){
   par2A = as.numeric(par2A)
   par2B = as.numeric(par2B)
   
-  off_geno[off_geno=="0/0"] = 0
-  off_geno[off_geno=="0/1"] = 1
-  off_geno[off_geno=="1/1"] = 2
+  # off_geno[off_geno=="0/0"] = 0
+  # off_geno[off_geno=="0/1"] = 1
+  # off_geno[off_geno=="1/1"] = 2
   off_geno = as.numeric(off_geno)
   
   for (j in 1:length(chrom_names)){

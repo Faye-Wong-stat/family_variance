@@ -54,14 +54,14 @@ colnames(marker_matrix2) <- colnames(marker_matrix)
 
 
 trio_geno <- array(NA, dim=c(nrow(marker_matrix2), 3, length(off_names)))
-for (i in 1:417){
+for (i in 1:length(off_names)){
   par1_geno = marker_matrix2[, colnames(marker_matrix2)==par1_names[i]]
   par2_geno = marker_matrix2[, colnames(marker_matrix2)==par2_names[i]]
   off_geno = marker_matrix2[, colnames(marker_matrix2)==off_names[i]]
   trio_geno[, , i] = cbind(par1_geno, par2_geno, off_geno)
 }
 dim(trio_geno)
-# [1] 37282     3   417
+# [1] 37282     3   593
 saveRDS(trio_geno, "get_errors/trio_geno.rds")
 # trio_geno <- readRDS("get_errors/trio_geno.rds")
 
@@ -121,7 +121,7 @@ saveRDS(error_rate, "get_errors/error_rate.rds")
 # dev.off()
 
 mean(error_rate, na.rm=T)
-# [1] 0.9912628
+# [1] 0.9764082
 error_rate_means <- apply(error_rate, 2, mean, na.rm=T)
 pdf("get_errors/plots/p1.pdf")
 hist(error_rate_means, xlab="percentage of correct offspring genotype per trio")
@@ -130,56 +130,20 @@ dev.off()
 
 
 
-# index_off_low_error <- apply(error_rate, 2, function(x){
-#   ifelse(mean(x, na.rm=T) > 0.95, T, F)
-# })
-# sum(index_off_low_error, na.rm = T)
-# # [1] 362
-# index_off_low_error_90 <- apply(error_rate_02, 2, function(x){
-#   ifelse(mean(x, na.rm=T) > 0.9, T, F)
-# })
-# length(which(index_off_low_error_90))
-# # [1] 406
-# index_off_low_error_50 <- apply(error_rate_02, 2, function(x){
-#   ifelse(mean(x, na.rm=T) < 0.5, T, F)
-# })
-# which(index_off_low_error_50)
-# # [1]  26  27  28  29  30  31 106 107 108 109
-# pedigree_valid[index_off_low_error_50, ]
-# # ID         P1         P2
-# # 40  16C016P002 11C141P001 08C123P001
-# # 41  16C016P011 11C141P001 08C123P001
-# # 42  16C016P017 11C141P001 08C123P001
-# # 43  16C016P020 11C141P001 08C123P001
-# # 44  16C016P021 11C141P001 08C123P001
-# # 46  16C016P031 11C141P001 08C123P001
-# # 144 16C040P006 11C153P003 07C092P003
-# # 145 16C040P009 11C153P003 07C092P003
-# # 146 16C040P016 11C153P003 07C092P003
-# # 147 16C040P018 11C153P003 07C092P003
+index_off_low_error <- apply(error_rate, 2, function(x){
+  ifelse(mean(x, na.rm=T) > 0.95, T, F)
+})
+sum(index_off_low_error, na.rm = T)
+# [1] 541
+index_off_low_error_90 <- apply(error_rate, 2, function(x){
+  ifelse(mean(x, na.rm=T) > 0.9, T, F)
+})
+length(which(index_off_low_error_90))
+# [1] 562
 
-
-
-
-# marker_matrix_high_error <- marker_matrix2[, c("11C141P001", "08C123P001", "11C153P003", "07C092P003")]
-# A <- apply(marker_matrix_high_error[, 1:2], 1, FUN=function(x){
-#   ifelse(x[1]==1 | x[2]==1, F, T)
-# })
-# sum(A, na.rm=T)
-# # 20507
-# B <- apply(marker_matrix_high_error[, 3:4], 1, FUN=function(x){
-#   ifelse(x[1]==1 | x[2]==1, F, T)
-# })
-# sum(B, na.rm=T)
-# # [1] 19472
-# 
-# 
-# 
-# write.table(pedigree_valid[index_off_low_error_50, ], 
-#             "get_errors/trios with higher than 50% genotype errors.txt")
 # saveRDS(index_off_low_error, "get_errors/index_off_low_error.rds")
-# # index_off_low_error <- readRDS("get_errors/index_off_low_error.rds")
-# 
+# index_off_low_error <- readRDS("get_errors/index_off_low_error.rds")
+
 # error_rate_02_exam <- apply(trio_geno_02[, , which(index_off_low_error)],
 #                        c(1, 3),
 #                        FUN=get_index_homoz_par_cor_off)

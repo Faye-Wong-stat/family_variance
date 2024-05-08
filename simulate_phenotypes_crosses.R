@@ -1,35 +1,46 @@
 # setwd("~/family_variance/")
+library(ggplot2)
 
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) == 0) {
   stop("At least one argument must be supplied (input file).\n", call. = FALSE)
 } else {
-  print(paste0("Arg input:  ", args[1]))
+  print(paste0("Arg input:  ", args))
 }
-
-library(ggplot2)
 
 offsprings_name <- args[1]
+trait_number <- as.numeric(args[2])
+
+# sessionInfo()
+# 360-365
 
 
 
 
-# i <- 179
-# file_names <- list.files("simulate_crosses/", pattern=".rds")
-# offsprings_name <- paste("simulate_crosses/", file_names[i], sep="")
+
+# file_names <- read.delim("simulate_crosses/file_names.txt", header=F)
+
+# i <- 499
+# offsprings_name <- file_names[i,]
 temp <- readRDS(offsprings_name)
-offsprings_name <- gsub(".rds", "", gsub("simulate_crosses/offspring_list_", "", offsprings_name))
 
-{# repeat_parents <- c()
-# for (i in 3:nrow(parents_names)){
-#   repeat_parents = c(repeat_parents, any(apply(parents_names[1:(i-1), ], 1, FUN=function(x){
-#     setequal(x, parents_names[i, ])})))
+offsprings_name <- gsub(".rds", "", gsub("simulate_crosses/offspring_list_", "", offsprings_name))
+# trait_number <- 1
+
+# parents_names <- gsub(".rds", "", gsub("simulate_crosses/offspring_list_", "", file_names[, 1]))
+# parents_names <- matrix(unlist(strsplit(parents_names, split="_")), ncol=2, byrow=T)
+# 
+# for (i in 1:nrow(parents_names)){
+#   if (any( apply(parents_names[-i, ], 1, setequal, parents_names[i, ]) )){
+#     print("duplicated parents")
+#     break
+#   }
 # }
-}
+
 
 # load the parameters 
-effective_marker_sizes <- c(4, 16, 64, 256, 512, 1024)
-h2s <- c(0.9, 0.7, 0.5, 0.3, 0.1)
+effective_marker_sizes <- c(4, 16, 64, 256, 1024)
+h2s <- c(0.8, 0.5, 0.2)
 
 lmms <- readRDS("simulate_phenotypes/lmms.rds")
 bayesC <- readRDS("simulate_phenotypes/bayesC.rds")
@@ -52,39 +63,27 @@ offsprings_genotype[temp=="0|0"] <- -1
 offsprings_genotype[temp=="1|1"] <- 1
 offsprings_genotype <- offsprings_genotype[, !remove_marker_indices]
 dim(offsprings_genotype)
-# [1]   200 30859
+# [1]   200 30899
 
 # calculate offspring true BV
 offsprings_Z <- vector(mode="list", length=length(alphas))
-offsprings_Z <- lapply(offsprings_Z, FUN=function(x){
-  vector(mode="list", length=length(alphas[[1]]))})
 for (i in 1:length(offsprings_Z)){
-  for (j in 1:length(offsprings_Z[[i]])){
-    offsprings_Z[[i]][[j]] = offsprings_genotype
-  }
+  offsprings_Z[[i]] = offsprings_genotype
 }
+dim(offsprings_Z[[i]])
+# [1]   200 30899
 
 offsprings_Zalpha <- vector(mode="list", length=length(alphas))
-offsprings_Zalpha <- lapply(offsprings_Zalpha, FUN=function(x){
-  vector(mode="list", length=length(alphas[[1]]))})
 for (i in 1:length(offsprings_Zalpha)){
-  for (j in 1:length(offsprings_Zalpha[[i]])){
-    offsprings_Zalpha[[i]][[j]] = offsprings_Z[[i]][[j]] %*% alphas[[i]][[j]]
-  }
+  offsprings_Zalpha[[i]] = offsprings_Z[[i]] %*% alphas[[i]][[trait_number]]
+    # matrix(alphas[[i]][[trait_number]], nrow=ncol(offsprings_Z[[i]]), ncol=1)
 }
-offsprings_Zalpha_ls_mtx <- vector(mode="list", length=length(alphas))
-for (i in 1:length(offsprings_Zalpha_ls_mtx)){
-  offsprings_Zalpha_ls_mtx[[i]] = offsprings_Zalpha[[i]][[1]]
-  for (j in 2:length(offsprings_Zalpha[[i]])){
-    offsprings_Zalpha_ls_mtx[[i]] = cbind(offsprings_Zalpha_ls_mtx[[i]], offsprings_Zalpha[[i]][[j]])
-  }
-}
+dim(offsprings_Zalpha[[i]])
+# [1] 200   1
 
 offsprings_BV <- vector(mode="list", length=length(h2s))
-offsprings_BV <- lapply(offsprings_BV, FUN=function(x){
-  vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
-  offsprings_BV[[i]] = offsprings_Zalpha_ls_mtx
+  offsprings_BV[[i]] = offsprings_Zalpha
 }
 
 # calculate the family mean 
@@ -93,41 +92,40 @@ offsprings_BV_fammean <- lapply(offsprings_BV_fammean, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_BV_fammean[[i]][[j]] = apply(offsprings_BV[[i]][[j]], 2, mean)
+    offsprings_BV_fammean[[i]][[j]] = mean(offsprings_BV[[i]][[j]])
   }
 }
+# length(offsprings_BV_fammean[[i]][[j]])
+# [1] 1
 # calculate the family variance 
 offsprings_BV_famvar <- vector(mode="list", length=length(h2s))
 offsprings_BV_famvar <- lapply(offsprings_BV_famvar, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_BV_famvar[[i]][[j]] = apply(offsprings_BV[[i]][[j]], 2, var)
+    offsprings_BV_famvar[[i]][[j]] = var(offsprings_BV[[i]][[j]])
   }
 }
+# length(offsprings_BV_famvar[[i]][[j]])
+# [1] 1
 
 
 
 # predict offsprings BV
 offsprings_Z2 <- vector(mode="list", length=length(effective_marker_indices))
-offsprings_Z2 <- lapply(offsprings_Z2, FUN=function(x){
-  vector(mode="list", length=ncol(effective_marker_indices[[1]]))})
 for (i in 1:length(offsprings_Z2)) {
-  for (j in 1:length(offsprings_Z2[[i]])){
-    offsprings_Z2[[i]][[j]] = offsprings_genotype[, -effective_marker_indices[[i]][, j]]
-  }
+  offsprings_Z2[[i]] = offsprings_genotype[, -effective_marker_indices[[i]][, trait_number]]
 }
+dim(offsprings_Z2[[i]])
+# [1]   200 29875
 
 offsprings_predY_RR <- vector(mode="list", length=length(lmms))
 offsprings_predY_RR <- lapply(offsprings_predY_RR, FUN=function(x){
   vector(mode="list", length=length(lmms[[1]]))})
 for (i in 1:length(offsprings_predY_RR)){
   for (j in 1:length(offsprings_predY_RR[[i]])){
-    offsprings_predY_RR[[i]][[j]] = offsprings_Z2[[j]][[1]] %*% lmms[[i]][[j]][[1]]$u
-    for (k in 2:length(lmms[[i]][[j]])){
-      offsprings_predY_RR[[i]][[j]] = cbind(offsprings_predY_RR[[i]][[j]], 
-                                         offsprings_Z2[[j]][[k]] %*% lmms[[i]][[j]][[k]]$u)
-    }
+    offsprings_predY_RR[[i]][[j]] = offsprings_Z2[[j]] %*% lmms[[i]][[j]][[trait_number]]$u
+      # matrix(lmms[[i]][[j]][[trait_number]]$u, nrow=ncol(offsprings_Z2[[j]]))
   }
 }
 
@@ -136,7 +134,7 @@ offsprings_predY_RR_fammean <- lapply(offsprings_predY_RR_fammean, FUN=function(
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_predY_RR_fammean[[i]][[j]] = apply(offsprings_predY_RR[[i]][[j]], 2, mean)
+    offsprings_predY_RR_fammean[[i]][[j]] = mean(offsprings_predY_RR[[i]][[j]])
   }
 }
 offsprings_predY_RR_famvar <- vector(mode="list", length=length(h2s))
@@ -144,7 +142,7 @@ offsprings_predY_RR_famvar <- lapply(offsprings_predY_RR_famvar, FUN=function(x)
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_predY_RR_famvar[[i]][[j]] = apply(offsprings_predY_RR[[i]][[j]], 2, var)
+    offsprings_predY_RR_famvar[[i]][[j]] = var(offsprings_predY_RR[[i]][[j]])
   }
 }
 
@@ -154,11 +152,8 @@ offsprings_predY <- lapply(offsprings_predY, FUN=function(x){
   vector(mode="list", length=length(lmms[[1]]))})
 for (i in 1:length(offsprings_predY)){
   for (j in 1:length(offsprings_predY[[i]])){
-    offsprings_predY[[i]][[j]] = offsprings_Z2[[j]][[1]] %*% bayesC[[i]][[j]][[1]]$ETA[[1]]$b
-    for (k in 2:length(lmms[[i]][[j]])){
-      offsprings_predY[[i]][[j]] = cbind(offsprings_predY[[i]][[j]],
-                                         offsprings_Z2[[j]][[k]] %*% bayesC[[i]][[j]][[k]]$ETA[[1]]$b)
-    }
+    offsprings_predY[[i]][[j]] = offsprings_Z2[[j]] %*% bayesC[[i]][[j]][[trait_number]]$ETA[[1]]$b
+      # matrix(bayesC[[i]][[j]][[trait_number]]$ETA[[1]]$b, nrow=ncol(offsprings_Z2[[j]]))
   }
 }
 
@@ -167,7 +162,7 @@ offsprings_predY_fammean <- lapply(offsprings_predY_fammean, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_predY_fammean[[i]][[j]] = apply(offsprings_predY[[i]][[j]], 2, mean)
+    offsprings_predY_fammean[[i]][[j]] = mean(offsprings_predY[[i]][[j]])
   }
 }
 offsprings_predY_famvar <- vector(mode="list", length=length(h2s))
@@ -175,7 +170,7 @@ offsprings_predY_famvar <- lapply(offsprings_predY_famvar, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
-    offsprings_predY_famvar[[i]][[j]] = apply(offsprings_predY[[i]][[j]], 2, var)
+    offsprings_predY_famvar[[i]][[j]] = var(offsprings_predY[[i]][[j]])
   }
 }
 
@@ -187,9 +182,7 @@ correlations_RR <- lapply(correlations_RR, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(offsprings_predY_RR)){
   for (j in 1:length(offsprings_predY_RR[[i]])){
-    for (k in 1:ncol(offsprings_predY_RR[[i]][[j]])){
-      correlations_RR[[i]][[j]][k] = cor(offsprings_BV[[i]][[j]][, k], offsprings_predY_RR[[i]][[j]][, k])
-    }
+    correlations_RR[[i]][[j]] = cor(offsprings_BV[[i]][[j]], offsprings_predY_RR[[i]][[j]])
   }
 }
 names(correlations_RR) <- h2s
@@ -197,10 +190,10 @@ for (i in 1:length(correlations_RR)){
   names(correlations_RR[[i]]) <- effective_marker_sizes
 }
 
-correlations_RR_df <- data.frame(h2s=as.character(rep(h2s, each=120)),
+correlations_RR_df <- data.frame(h2s=as.character(rep(h2s, each=5)),
                               effective_marker_sizes=
-                                as.character(rep(rep(effective_marker_sizes, each=20), 5)),
-                              cor=rep(NA, 600))
+                                as.character(rep(effective_marker_sizes, 3)),
+                              cor=rep(NA, 15))
 correlations_RR_df$effective_marker_sizes <-
   factor(correlations_RR_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
 
@@ -218,9 +211,7 @@ correlations <- lapply(correlations, FUN=function(x){
   vector(mode="list", length=length(effective_marker_sizes))})
 for (i in 1:length(offsprings_predY)){
   for (j in 1:length(offsprings_predY[[i]])){
-    for (k in 1:ncol(offsprings_predY[[i]][[j]])){
-      correlations[[i]][[j]][k] = cor(offsprings_BV[[i]][[j]][, k], offsprings_predY[[i]][[j]][, k])
-    }
+    correlations[[i]][[j]] = cor(offsprings_BV[[i]][[j]], offsprings_predY[[i]][[j]])
   }
 }
 names(correlations) <- h2s
@@ -228,10 +219,10 @@ for (i in 1:length(correlations)){
   names(correlations[[i]]) <- effective_marker_sizes
 }
 
-correlations_df <- data.frame(h2s=as.character(rep(h2s, each=120)),
+correlations_df <- data.frame(h2s=as.character(rep(h2s, each=5)),
                               effective_marker_sizes=
-                                as.character(rep(rep(effective_marker_sizes, each=20), 5)),
-                              cor=rep(NA, 600))
+                                as.character(rep(effective_marker_sizes, 3)),
+                              cor=rep(NA, 15))
 correlations_df$effective_marker_sizes <-
   factor(correlations_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
 
@@ -244,95 +235,85 @@ for (i in 1:length(correlations)){
 }
 correlations_df$cor <- corr
 
-# correlations_fammean <- data.frame(h2s=as.character(rep(h2s, each=6)),
-#                                    effective_marker_sizes=as.character(rep(effective_marker_sizes,
-#                                                                            5)),
-#                                    cor=rep(NA, 30))
-# correlations_fammean$effective_marker_sizes <-
-#   factor(correlations_fammean$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
-# corr <- c()
-# for (i in 1:length(h2s)){
-#   for (j in 1:length(effective_marker_sizes)){
-#     corr = c(corr, cor(offsprings_BV_fammean[[i]][[j]], offsprings_predY_fammean[[i]][[j]]))
-#   }
-# }
-# correlations_fammean$cor <- corr
-# correlations_famvar <- data.frame(h2s=as.character(rep(h2s, each=6)),
-#                                    effective_marker_sizes=as.character(rep(effective_marker_sizes,
-#                                                                            5)),
-#                                    cor=rep(NA, 30))
-# correlations_famvar$effective_marker_sizes <-
-#   factor(correlations_famvar$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
-# corr <- c()
-# for (i in 1:length(h2s)){
-#   for (j in 1:length(effective_marker_sizes)){
-#     corr = c(corr, cor(offsprings_BV_famvar[[i]][[j]], offsprings_predY_fammean[[i]][[j]]))
-#   }
-# }
-# correlations_famvar$cor <- corr
 
 
+result_df <- data.frame(family=rep(offsprings_name, 15), 
+                        h2s=as.character(rep(h2s, each=5)),
+                        effective_marker_sizes=
+                         as.character(rep(effective_marker_sizes, 3)),
+                        trait_number=rep(trait_number, 15),
+                        BV_mean=rep(NA, 15), 
+                        BV_var=rep(NA, 15), 
+                        predY_RR_mean=rep(NA, 15), 
+                        predY_RR_var=rep(NA, 15), 
+                        predY_mean=rep(NA, 15), 
+                        predY_var=rep(NA, 15))
+result_df$effective_marker_sizes <- 
+  factor(result_df$effective_marker_sizes, levels=as.factor(effective_marker_sizes))
+for (i in 1:length(h2s)){
+  for (j in 1:length(effective_marker_sizes)){
+    result_df[(i-1)*5 + j, 5:10] = c(offsprings_BV_fammean[[i]][[j]], 
+                                offsprings_BV_famvar[[i]][[j]], 
+                                offsprings_predY_RR_fammean[[i]][[j]], 
+                                offsprings_predY_RR_famvar[[i]][[j]], 
+                                offsprings_predY_fammean[[i]][[j]], 
+                                offsprings_predY_famvar[[i]][[j]])
+  }
+}
 
 
-# pdf(paste("simulation_result/",
-#           offsprings_name,
-#           "_cor_fammean",
-#           ".pdf", sep=""))
-# ggplot(correlations_fammean, aes(x=effective_marker_sizes, y=cor)) + geom_point() + facet_wrap(~h2s)
-# dev.off()
-# 
-# pdf(paste("simulation_result/",
-#           offsprings_name,
-#           "_cor_famvar",
-#           ".pdf", sep=""))
-# ggplot(correlations_famvar, aes(x=effective_marker_sizes, y=cor)) + geom_point() + facet_wrap(~h2s)
-# dev.off()
 
 saveRDS(offsprings_BV, paste("simulate_phenotypes_crosses/", 
                              offsprings_name, 
                             "_BV", 
                             ".rds", sep=""))
-saveRDS(offsprings_BV_fammean, paste("simulate_phenotypes_crosses/", 
-                             offsprings_name, 
-                             "_BV_fammean", 
-                             ".rds", sep=""))
-saveRDS(offsprings_BV_famvar, paste("simulate_phenotypes_crosses/", 
-                             offsprings_name, 
-                             "_BV_famvar", 
-                             ".rds", sep=""))
+# saveRDS(offsprings_BV_fammean, paste("simulate_phenotypes_crosses/", 
+#                              offsprings_name, 
+#                              "_BV_fammean", 
+#                              ".rds", sep=""))
+# saveRDS(offsprings_BV_famvar, paste("simulate_phenotypes_crosses/", 
+#                              offsprings_name, 
+#                              "_BV_famvar", 
+#                              ".rds", sep=""))
 saveRDS(offsprings_predY_RR, paste("simulate_phenotypes_crosses/", 
                                 offsprings_name, 
                                 "_predY_RR", 
                                 ".rds", sep=""))
-saveRDS(offsprings_predY_RR_fammean, paste("simulate_phenotypes_crosses/", 
-                                        offsprings_name, 
-                                "_predY_RR_fammean", 
-                                ".rds", sep=""))
-saveRDS(offsprings_predY_RR_famvar, paste("simulate_phenotypes_crosses/", 
-                                        offsprings_name, 
-                                        "_predY_RR_famvar", 
-                                        ".rds", sep=""))
+# saveRDS(offsprings_predY_RR_fammean, paste("simulate_phenotypes_crosses/", 
+#                                         offsprings_name, 
+#                                 "_predY_RR_fammean", 
+#                                 ".rds", sep=""))
+# saveRDS(offsprings_predY_RR_famvar, paste("simulate_phenotypes_crosses/", 
+#                                         offsprings_name, 
+#                                         "_predY_RR_famvar", 
+#                                         ".rds", sep=""))
 saveRDS(offsprings_predY, paste("simulate_phenotypes_crosses/",
                                 offsprings_name,
                                 "_predY",
                                 ".rds", sep=""))
-saveRDS(offsprings_predY_fammean, paste("simulate_phenotypes_crosses/",
-                                        offsprings_name,
-                                        "_predY_fammean",
-                                        ".rds", sep=""))
-saveRDS(offsprings_predY_famvar, paste("simulate_phenotypes_crosses/",
-                                       offsprings_name,
-                                       "_predY_famvar",
-                                       ".rds", sep=""))
+# saveRDS(offsprings_predY_fammean, paste("simulate_phenotypes_crosses/",
+#                                         offsprings_name,
+#                                         "_predY_fammean",
+#                                         ".rds", sep=""))
+# saveRDS(offsprings_predY_famvar, paste("simulate_phenotypes_crosses/",
+#                                        offsprings_name,
+#                                        "_predY_famvar",
+#                                        ".rds", sep=""))
 
-saveRDS(correlations_RR, paste("simulate_phenotypes_crosses/",
+saveRDS(correlations_RR_df, paste("simulate_phenotypes_crosses/",
                             offsprings_name,
-                            "_cor_RR",
+                            "_cor_RR_df",
                             ".rds", sep=""))
-saveRDS(correlations, paste("simulate_phenotypes_crosses/",
+saveRDS(correlations_df, paste("simulate_phenotypes_crosses/",
                             offsprings_name,
-                            "_cor",
+                            "_cor_df",
                             ".rds", sep=""))
+saveRDS(result_df, paste("simulate_phenotypes_crosses/",
+                         offsprings_name,
+                         "_result_df",
+                         ".rds", sep=""))
+
+
 pdf(paste("simulate_phenotypes_crosses/plots/",
           offsprings_name,
           "_cor_RR",

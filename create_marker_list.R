@@ -55,7 +55,7 @@ dim(marker_info_cM_parent)
 dim(phased_marker_info)
 # [1] 34911     9
 dim(phased_marker_matrix)
-# [1] 34911   1035
+# [1] 34911  1007
 
 
 

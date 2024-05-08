@@ -1,21 +1,21 @@
 # select best parents for crosses based on true BV
 
 setwd("~/family_variance/")
-library(ggplot2)
+# library(ggplot2)
 
 
 
 indiv_names <- readRDS("create_marker_list/indiv_names.rds")
 chrom_names <- readRDS("create_marker_list/chrom_names.rds")
 
-effective_marker_sizes <- c(4, 16, 64, 256, 512, 1024)
-h2s <- c(0.9, 0.7, 0.5, 0.3, 0.1)
+effective_marker_sizes <- c(4, 16, 64, 256, 1024)
+h2s <- c(0.8, 0.5, 0.2)
 
 remove_marker_indices <- readRDS("simulate_phenotypes/remove_marker_indices.rds")
 effective_marker_indices <- readRDS("simulate_phenotypes/effective_marker_indices.rds")
 Z <- readRDS("simulate_phenotypes/Z.rds")
 alphas <- readRDS("simulate_phenotypes/alphas.rds")
-Zalphas <- readRDS("simulate_phenotypes_real_data/Zalphas.rds")
+Zalphas <- readRDS("simulate_phenotypes/Zalphas.rds")
 # Zalphas_ls_mtx <-  readRDS("simulate_phenotypes/Zalphas_ls_mtx.rds")
 
 
@@ -38,19 +38,20 @@ best_parents <- best_parents[-1, ]
 j=1
 k=1
 Zalphas[[j]][[k]][order(Zalphas[[j]][[k]][, 1], decreasing=T)[1:20], 1]
-# 16C045P030 09C048P003 10C126P002 10C144P001 91C248P003 16C049P026 04C041P006 
-# 3.241007   3.241007   3.241007   3.241007   3.241007   3.057363   3.057363 
-# 04C041P007 08C013P605 08C132P003 09C085P002 11C011P003 11C089P001 12C018P001 
-# 3.057363   3.057363   3.057363   3.057363   3.057363   3.057363   3.057363 
-# 12C023P604 12C029P601 12C053P601 12C061P605 12C072P606 12C075P001 
-# 3.057363   3.057363   3.057363   3.057363   3.057363   3.057363 
+# 16C036P029 12C155P001 16C056P005 16C056P012 16C036P012 16C056P013 87C112P006 
+# 3.057363   2.614553   2.614553   2.614553   2.430909   2.430909   2.430909 
+# 97C207P003 05C205P002 09C078P603 16C060P007 03C195P008 12C186P001 16C061P028 
+# 2.430909   2.247266   2.247266   2.247266   1.988099   1.988099   1.988099 
+# 91C248P002 98C152P008 03C163P001 05C109P002 07C148P003 09C132P003 
+# 1.988099   1.988099   1.804456   1.804456   1.804456   1.804456 
 best_parents[1:3, 1:5]
-# number_of_QTL replic       parent_1   parent_2    parent_3
-# 2             4      1     16C045P030 09C048P003  10C126P002
-# 3             4      2     05C107P002 08C132P608 05C107P0021
-# 4             4      3 Everbearing185   Hayazaki    PI551401
+# number_of_QTL replic   parent_1   parent_2   parent_3
+# 2             4      1 16C036P029 12C155P001 16C056P005
+# 3             4      2 35C093P011 01C138P001 16C014P006
+# 4             4      3 16C033P013 16C033P038 16C100P031
 
 write.table(best_parents, "select_best_parents/best_parents.txt", row.names=F, col.names=F)
+# best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ")
 # write.table(medium_parents, "select_best_parents/medium_parents.txt", row.names=F, col.names=F)
 
 
