@@ -11,7 +11,7 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-type=END
 #SBATCH --mail-user=faywang@ucdavis.edu
-#SBATCH --array=1-100
+#SBATCH --array=1-300
 
 echo $SLURM_ARRAY_TASK_ID
 name=($(head -n $SLURM_ARRAY_TASK_ID select_best_parents/best_parents.txt | tail -n 1 | tr -d '"'))

@@ -47,7 +47,8 @@ This document describes the scripts used in this project. The order to run scrip
 # Test if family variance is greater in best parents
 "select_best_parents.R"
 "simulate_crosses_best_parents.R"
-"view_crosses_best_parents.R"
+"view_crosses_best_parents.R" :
+    archived
 "view_usefulness_best_parents.R"
 "plot_BV_family_mean_sd.R": 
     this is for plotting

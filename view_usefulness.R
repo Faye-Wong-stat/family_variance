@@ -65,11 +65,7 @@ for (j in 1:length(parents_heter_sites_noncausal)){
   }
 }
 
-# this takes forever
-# saveRDS(parents_Z_noneffective, "view_usefulness/parents_Z_noneffective.rds")
-# saveRDS(parents_heter_sites_noncausal, "parents_Z_noneffective/parents_heter_sites_noncausal.rds")
-# parents_Z_noneffective <- readRDS("view_usefulness/parents_Z_noneffective.rds")
-# parents_heter_sites_noncausal <- readRDS("parents_Z_noneffective/parents_heter_sites_noncausal.rds")
+
 
 
 
@@ -400,6 +396,8 @@ for (h in 1:length(si)){
 results_cor_usemean_varmean_varsisd$effective_marker_sizes <- 
   factor(results_cor_usemean_varmean_varsisd$effective_marker_sizes, 
          levels=as.factor(effective_marker_sizes))
+results_cor_usemean_varmean_varsisd$i <- 
+  paste("i == ", round(results_cor_usemean_varmean_varsisd$si, 2), sep="")
 
 # 2*5
 results_se_usemean <- matrix(NA, nrow=10, ncol=4)
@@ -421,10 +419,24 @@ for (h in 1:length(si)){
 results_se_usemean$effective_marker_sizes <- factor(results_se_usemean$effective_marker_sizes, 
                                                 levels=as.factor(effective_marker_sizes))
 
+results_cor_usemean_varmean_varsisd$log_var_mean <- 
+  log(results_cor_usemean_varmean_varsisd$var_mean)
+results_cor_usemean_varmean_varsisd$log_var_si_sd <- 
+  log(results_cor_usemean_varmean_varsisd$var_si_sd)
+
+results_var <- results_cor_usemean_varmean_varsisd[rep(1:nrow(results_cor_usemean_varmean_varsisd), 2), 
+                                                   c(1:3, 9)]
+results_var$variance <- rep(c("variance of mean", "variance of i*sd"), 
+                            each=nrow(results_cor_usemean_varmean_varsisd))
+results_var$log_variance <- NA
+for (i in 1:nrow(results_cor_usemean_varmean_varsisd)) {
+  results_var$log_variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
+    unlist(results_cor_usemean_varmean_varsisd[i, 7:8])
+}
+results_var <- as.data.frame(results_var)
 
 
-results_cor_usemean_varmean_varsisd$i <- 
-  paste("i == ", round(results_cor_usemean_varmean_varsisd$si, 2), sep="")
+
 results_se_usemean$i <- as.character(round(results_se_usemean$si, 2))
 # pdf("view_usefulness/plots/test1.pdf")
 p4 <-
@@ -440,6 +452,12 @@ p4 <-
   # scale_color_discrete(name="selection intensity", labels = parse(text=unique(results_se_usemean$i))) + 
   theme_minimal_grid(font_size=8)
 # dev.off()
+pdf("view_usefulness/plots/test1.pdf")
+ggplot(results_var, aes(effective_marker_sizes, log_variance, color=variance)) + 
+  geom_boxplot(position = "dodge") + 
+  facet_wrap(~i, labeller = label_parsed) + 
+  scale_colour_manual(values=c("blue", "gold"))
+dev.off()
 # pdf("view_usefulness/plots/test1.pdf")
 p5 <-
   ggplot(results_cor_usemean_varmean_varsisd[

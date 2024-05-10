@@ -32,13 +32,15 @@ alphas <- readRDS("simulate_phenotypes/alphas.rds")
 
 
 
-effective_loci_number <- as.numeric(args[1])
-replic <- as.numeric(args[2])
-parents_names_all <- as.character(args[3:22])
+h2 <- as.numeric(args[1])
+effective_loci_number <- as.numeric(args[2])
+replic <- as.numeric(args[3])
+parents_names_all <- as.character(args[4:23])
 
-# effective_loci_number <- as.numeric(best_parents[1, 1])
-# replic <- as.numeric(best_parents[1, 2])
-# parents_names_all <- as.character(best_parents[1, 3:22])
+# h2 <- as.numeric(best_parents[1, 1])
+# effective_loci_number <- as.numeric(best_parents[1, 2])
+# replic <- as.numeric(best_parents[1, 3])
+# parents_names_all <- as.character(best_parents[1, 4:23])
 
 
 
@@ -53,7 +55,7 @@ parents_names <- parents_names[-1, ]
 
 set.seed(1)
 for (g in 1:nrow(parents_names)){
-  offsprings <- matrix(NA, ncol=200)
+  offsprings = matrix(NA, ncol=200)
   offspring_list = vector(mode="list", length=(length(chrom_names) + 1))
   offspring_list[[1]] = parents_names[g, ]
   for (h in 1:length(chrom_names)){
@@ -90,9 +92,9 @@ for (g in 1:nrow(parents_names)){
   
   saveRDS(offspring_list,
           paste("simulate_crosses_best_parents/offspring_genotypes/offspring_list_",
-                parents_names[g, 1],
-                "_",
-                parents_names[g, 2],
+                paste(h2, effective_loci_number, replic, 
+                      parents_names[g, 1], parents_names[g, 2], 
+                      sep="_"),
                 ".rds",
                 sep=""))
   
@@ -112,7 +114,7 @@ for (g in 1:nrow(parents_names)){
                         offsprings_BV_famvar=offsprings_BV_famvar)
   
   saveRDS(offsprings_obj, paste("simulate_crosses_best_parents/offspring_family_info_true/", 
-                                paste(effective_loci_number, replic, 
+                                paste(h2, effective_loci_number, replic, 
                                       parents_names[g, 1], parents_names[g, 2], 
                                       sep="_"), 
                                 "_.rds", 
@@ -146,7 +148,7 @@ for (g in 1:nrow(parents_names)){
                         offsprings_predY_famvar=offsprings_predY_famvar)
   
   saveRDS(offsprings_obj, paste("simulate_crosses_best_parents/offspring_family_info_pred/", 
-                                paste(effective_loci_number, replic, 
+                                paste(h2, effective_loci_number, replic, 
                                       parents_names[g, 1], parents_names[g, 2], 
                                       sep="_"), 
                                 "_.rds", 

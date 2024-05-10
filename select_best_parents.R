@@ -16,39 +16,48 @@ effective_marker_indices <- readRDS("simulate_phenotypes/effective_marker_indice
 Z <- readRDS("simulate_phenotypes/Z.rds")
 alphas <- readRDS("simulate_phenotypes/alphas.rds")
 Zalphas <- readRDS("simulate_phenotypes/Zalphas.rds")
+bayesC <- readRDS("simulate_phenotypes/bayesC.rds")
+
 # Zalphas_ls_mtx <-  readRDS("simulate_phenotypes/Zalphas_ls_mtx.rds")
 
 
 
-best_parents <- data.frame(number_of_QTL=NA, replic=NA)
+best_parents <- data.frame(h2s=NA, effective_marker_sizes=NA, replic=NA)
 for (k in 1:20){
   best_parents[, ncol(best_parents)+1] = NA
   colnames(best_parents)[ncol(best_parents)] = paste("parent_", k, sep="")
 }
-for (j in 1:length(effective_marker_sizes)){
-  for (k in 1:20){
-    best_parents = rbind(best_parents, 
-                         c(effective_marker_sizes[j], k, 
-                           rownames(Z)[order(Zalphas[[j]][[k]][, 1], decreasing=T)[1:20]]))
+for (i in 1:length(h2s)){
+  for (j in 1:length(effective_marker_sizes)){
+    for (k in 1:20){
+      predY = Z[, -effective_marker_indices[[j]][, k]] %*% 
+        bayesC[[i]][[j]][[k]]$ETA[[1]]$b
+      best_parents = rbind(best_parents, 
+                            c(h2s[i], effective_marker_sizes[j], k, 
+                              rownames(predY)[order(predY[, 1], decreasing=T)[1:20]]))
+    }
   }
 }
 
 best_parents <- best_parents[-1, ]
 
+i=1
 j=1
 k=1
-Zalphas[[j]][[k]][order(Zalphas[[j]][[k]][, 1], decreasing=T)[1:20], 1]
-# 16C036P029 12C155P001 16C056P005 16C056P012 16C036P012 16C056P013 87C112P006 
-# 3.057363   2.614553   2.614553   2.614553   2.430909   2.430909   2.430909 
-# 97C207P003 05C205P002 09C078P603 16C060P007 03C195P008 12C186P001 16C061P028 
-# 2.430909   2.247266   2.247266   2.247266   1.988099   1.988099   1.988099 
-# 91C248P002 98C152P008 03C163P001 05C109P002 07C148P003 09C132P003 
-# 1.988099   1.988099   1.804456   1.804456   1.804456   1.804456 
-best_parents[1:3, 1:5]
-# number_of_QTL replic   parent_1   parent_2   parent_3
-# 2             4      1 16C036P029 12C155P001 16C056P005
-# 3             4      2 35C093P011 01C138P001 16C014P006
-# 4             4      3 16C033P013 16C033P038 16C100P031
+predY = Z[, -effective_marker_indices[[j]][, k]] %*% 
+  bayesC[[i]][[j]][[k]]$ETA[[1]]$b
+predY[rownames(predY)[order(predY[, 1], decreasing=T)[1:20]], ]
+# 16C056P013 12C004P001 16C546P024 87C112P006 16C036P029 16C062P008 12C155P001 
+# 3.906551   3.785600   3.570153   3.394738   3.339412   3.312591   3.235645 
+# 11C158P001 16C036P012 16C056P012 12C186P001 07C132P003 05C205P002 16C056P005 
+# 3.222633   3.139962   2.979139   2.960802   2.957838   2.952749   2.895504 
+# 97C207P003 16C061P020 12C059P602 12C071P001 11C103P001 16C036P022 
+# 2.878256   2.878155   2.876393   2.861147   2.851466   2.840743 
+best_parents[1:3, 1:6]
+# h2s number_of_QTL replic   parent_1   parent_2   parent_3
+# 2 0.8             4      1 16C056P013 12C004P001 16C546P024
+# 3 0.8             4      2 16C556P001 16C092P026 35C093P011
+# 4 0.8             4      3 16C507P040 16C100P031 16C536P027
 
 write.table(best_parents, "select_best_parents/best_parents.txt", row.names=F, col.names=F)
 # best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ")
