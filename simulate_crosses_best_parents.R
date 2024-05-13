@@ -125,20 +125,24 @@ for (g in 1:nrow(parents_names)){
     offsprings_Z[, -effective_marker_indices[[
       which(effective_loci_number==effective_marker_sizes)
       ]][, replic]]
-  offsprings_predY_RR = matrix(NA, nrow=200, ncol=3)
-  offsprings_predY = matrix(NA, nrow=200, ncol=3)
-  for (i in 1:length(lmms)){
-    offsprings_predY_RR[, i] = offsprings_Z2 %*% 
-      lmms[[i]][[which(effective_loci_number==effective_marker_sizes)]][[replic]]$u
-    offsprings_predY[, i] = offsprings_Z2 %*% 
-      bayesC[[i]][[which(effective_loci_number==effective_marker_sizes)]][[replic]]$ETA[[1]]$b
-  }
+  offsprings_predY_RR = offsprings_Z2 %*% 
+    lmms[[
+      which(h2==h2s)
+    ]][[
+      which(effective_loci_number==effective_marker_sizes)
+    ]][[replic]]$u
+  offsprings_predY = offsprings_Z2 %*% 
+    bayesC[[
+      which(h2==h2s)
+    ]][[
+      which(effective_loci_number==effective_marker_sizes)
+    ]][[replic]]$ETA[[1]]$b
   
-  offsprings_predY_RR_fammean = sapply(as.data.frame(offsprings_predY_RR), mean)
-  offsprings_predY_RR_famvar = sapply(as.data.frame(offsprings_predY_RR), var)
+  offsprings_predY_RR_fammean = mean(offsprings_predY_RR)
+  offsprings_predY_RR_famvar = var(offsprings_predY_RR)
   
-  offsprings_predY_fammean = sapply(as.data.frame(offsprings_predY), mean)
-  offsprings_predY_famvar = sapply(as.data.frame(offsprings_predY), var)
+  offsprings_predY_fammean = mean(offsprings_predY)
+  offsprings_predY_famvar = var(offsprings_predY)
   
   offsprings_obj = list(offsprings_predY_RR=offsprings_predY_RR, 
                         offsprings_predY_RR_fammean=offsprings_predY_RR_fammean, 

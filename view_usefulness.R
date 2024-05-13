@@ -195,7 +195,7 @@ p2 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   ylab("accuracy") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   theme_minimal_grid(font_size=10) +
   theme(strip.text.x = element_blank(), 
         legend.position = "bottom") + 
@@ -246,7 +246,7 @@ p9 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   ylab("accuracy") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   theme_minimal_grid(font_size=10) +
   theme(strip.text.x = element_blank(), 
         legend.position = "bottom") + 
@@ -337,7 +337,7 @@ p3 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   xlab("number of causal loci") + 
   ylab("accuracy") + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +
@@ -361,7 +361,7 @@ p10 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   xlab("number of causal loci") + 
   ylab("accuracy") + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +
@@ -372,6 +372,8 @@ save_plot(paste("view_usefulness/plots/", "famuse_cor_RR.pdf", sep=""),
 
 
 
+# look at the correlation between true mean and true usefulness
+# look at the variance of mean and variance of i*sd
 # 2*5*20
 results_cor_usemean_varmean_varsisd <- matrix(NA, nrow=200, ncol=6)
 results_cor_usemean_varmean_varsisd <- as.data.frame(results_cor_usemean_varmean_varsisd)
@@ -420,20 +422,20 @@ results_se_usemean$effective_marker_sizes <- factor(results_se_usemean$effective
                                                 levels=as.factor(effective_marker_sizes))
 
 results_cor_usemean_varmean_varsisd$log_var_mean <- 
-  log(results_cor_usemean_varmean_varsisd$var_mean)
+  log10(results_cor_usemean_varmean_varsisd$var_mean)
 results_cor_usemean_varmean_varsisd$log_var_si_sd <- 
-  log(results_cor_usemean_varmean_varsisd$var_si_sd)
+  log10(results_cor_usemean_varmean_varsisd$var_si_sd)
 
 results_var <- results_cor_usemean_varmean_varsisd[rep(1:nrow(results_cor_usemean_varmean_varsisd), 2), 
-                                                   c(1:3, 9)]
+                                                   c(1:3, 7)]
 results_var$variance <- rep(c("variance of mean", "variance of i*sd"), 
                             each=nrow(results_cor_usemean_varmean_varsisd))
 results_var$log_variance <- NA
 for (i in 1:nrow(results_cor_usemean_varmean_varsisd)) {
   results_var$log_variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
-    unlist(results_cor_usemean_varmean_varsisd[i, 7:8])
+    unlist(results_cor_usemean_varmean_varsisd[i, 8:9])
 }
-results_var <- as.data.frame(results_var)
+
 
 
 
@@ -445,78 +447,82 @@ p4 <-
   geom_errorbar(aes(ymin=use_mean_mean-use_mean_se, ymax=use_mean_mean+use_mean_se, color=i), width=0.2) + 
   geom_line(aes(y=use_mean_mean, color=i), linewidth=0.5) + 
   xlab("number of causal loci") + 
-  ylab("correlation between BV mean and usefulness") + 
+  ylab("correlation between BV mean \nand usefulness") + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) +
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="selection intensity")) + 
   # scale_color_discrete(name="selection intensity", labels = parse(text=unique(results_se_usemean$i))) + 
   theme_minimal_grid(font_size=8)
 # dev.off()
-pdf("view_usefulness/plots/test1.pdf")
-ggplot(results_var, aes(effective_marker_sizes, log_variance, color=variance)) + 
+# pdf("view_usefulness/plots/test1.pdf")
+p5 <- 
+  ggplot(results_var, aes(effective_marker_sizes, log_variance, color=variance)) + 
   geom_boxplot(position = "dodge") + 
   facet_wrap(~i, labeller = label_parsed) + 
-  scale_colour_manual(values=c("blue", "gold"))
-dev.off()
-# pdf("view_usefulness/plots/test1.pdf")
-p5 <-
-  ggplot(results_cor_usemean_varmean_varsisd[
-  results_cor_usemean_varmean_varsisd$effective_marker_sizes=="4" & 
-    results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
-             aes(var_mean, var_si_sd)) + 
-  geom_point() + 
-  xlim(0, 2.5) + 
-  ylim(0, 2.5) + 
-  geom_abline(slope=1, intercept=0) + 
-  # facet_wrap(~i, labeller = label_parsed) + 
-  xlab("variance of mean") + 
-  ylab("variance of i*sd") +
-  theme_minimal_grid(font_size=8) + 
-  theme(plot.title=element_text(size=8)) +
-  ggtitle("number of causal loci: 4")
+  xlab("number of causal loci") + 
+  ylab("variance of i*sd (log10)") + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
+  theme_minimal_grid(font_size=8)
 # dev.off()
 # pdf("view_usefulness/plots/test1.pdf")
-p6 <-
-ggplot(results_cor_usemean_varmean_varsisd[
-  results_cor_usemean_varmean_varsisd$effective_marker_sizes=="64" & 
-    results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
-  aes(var_mean, var_si_sd)) + 
-  geom_point() + 
-  xlim(0, 26) +
-  ylim(0, 26) +
-  geom_abline(slope=1, intercept=0) + 
-  # facet_wrap(~i, labeller = label_parsed) + 
-  xlab("variance of mean") + 
-  ylab("variance of i*sd") +
-  theme_minimal_grid(font_size=8) + 
-  theme(axis.title.y=element_blank(), axis.ticks.y=element_blank(), 
-        plot.title=element_text(size=8)) + 
-  ggtitle("number of causal loci: 64")
-# dev.off()
-# pdf("view_usefulness/plots/test1.pdf")
-p7 <-
-ggplot(results_cor_usemean_varmean_varsisd[
-  results_cor_usemean_varmean_varsisd$effective_marker_sizes=="1024" & 
-    results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
-  aes(var_mean, var_si_sd)) + 
-  geom_point() + 
-  xlim(0, 260) +
-  ylim(0, 260) +
-  geom_abline(slope=1, intercept=0) + 
-  # facet_wrap(~i, labeller = label_parsed) + 
-  xlab("variance of mean") + 
-  ylab("variance of i*sd") +
-  theme_minimal_grid(font_size=8) + 
-  theme(axis.title.y=element_blank(), axis.ticks.y=element_blank(), 
-        plot.title=element_text(size=8)) + 
-  ggtitle("number of causal loci: 1024")
-# dev.off()
+# p5 <-
+#   ggplot(results_cor_usemean_varmean_varsisd[
+#   results_cor_usemean_varmean_varsisd$effective_marker_sizes=="4" & 
+#     results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
+#              aes(var_mean, var_si_sd)) + 
+#   geom_point() + 
+#   xlim(0, 2.5) + 
+#   ylim(0, 2.5) + 
+#   geom_abline(slope=1, intercept=0) + 
+#   # facet_wrap(~i, labeller = label_parsed) + 
+#   xlab("variance of mean") + 
+#   ylab("variance of i*sd") +
+#   theme_minimal_grid(font_size=8) + 
+#   theme(plot.title=element_text(size=8)) +
+#   ggtitle("number of causal loci: 4")
+# # dev.off()
+# # pdf("view_usefulness/plots/test1.pdf")
+# p6 <-
+# ggplot(results_cor_usemean_varmean_varsisd[
+#   results_cor_usemean_varmean_varsisd$effective_marker_sizes=="64" & 
+#     results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
+#   aes(var_mean, var_si_sd)) + 
+#   geom_point() + 
+#   xlim(0, 26) +
+#   ylim(0, 26) +
+#   geom_abline(slope=1, intercept=0) + 
+#   # facet_wrap(~i, labeller = label_parsed) + 
+#   xlab("variance of mean") + 
+#   ylab("variance of i*sd") +
+#   theme_minimal_grid(font_size=8) + 
+#   theme(axis.title.y=element_blank(), axis.ticks.y=element_blank(), 
+#         plot.title=element_text(size=8)) + 
+#   ggtitle("number of causal loci: 64")
+# # dev.off()
+# # pdf("view_usefulness/plots/test1.pdf")
+# p7 <-
+# ggplot(results_cor_usemean_varmean_varsisd[
+#   results_cor_usemean_varmean_varsisd$effective_marker_sizes=="1024" & 
+#     results_cor_usemean_varmean_varsisd$i == "i == 2.67", ], 
+#   aes(var_mean, var_si_sd)) + 
+#   geom_point() + 
+#   xlim(0, 260) +
+#   ylim(0, 260) +
+#   geom_abline(slope=1, intercept=0) + 
+#   # facet_wrap(~i, labeller = label_parsed) + 
+#   xlab("variance of mean") + 
+#   ylab("variance of i*sd") +
+#   theme_minimal_grid(font_size=8) + 
+#   theme(axis.title.y=element_blank(), axis.ticks.y=element_blank(), 
+#         plot.title=element_text(size=8)) + 
+#   ggtitle("number of causal loci: 1024")
+# # dev.off()
 
-prow <- plot_grid(p5, p6, p7, nrow=1, labels=c("b", "c", "d"))
+# prow <- plot_grid(p5, p6, p7, nrow=1, labels=c("b", "c", "d"))
 
 save_plot("view_usefulness/plots/cor_fam_use_mean_var_sisd_mean.pdf", 
           # prow,
-          plot_grid(p4, prow, ncol=1, labels=c("a", "")),
+          plot_grid(p4, p5, ncol=1, labels="auto"),
           base_width=6.5, base_height=4.33)
 
 

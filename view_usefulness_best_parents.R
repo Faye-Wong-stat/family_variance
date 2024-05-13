@@ -14,17 +14,18 @@ si <- dnorm(b, 0, 1) / pnorm(b, 0, 1, lower.tail=F)
 
 file_names <- list.files("simulate_crosses_best_parents/offspring_family_info_true/")
 info_df <- sapply(file_names, FUN=function(x){
-  strsplit(x, "_")[[1]][1:4]
+  strsplit(x, "_")[[1]][1:5]
 })
 info_df <- t(info_df)
-colnames(info_df) <- c("effective_marker_sizes", "trait_number", "parent1", "parent2")
+colnames(info_df) <- c("h2s", "effective_marker_sizes", "trait_number", "parent1", "parent2")
 info_df <- as.data.frame(info_df)
 
+info_df$h2s <- as.numeric(info_df$h2s)
 info_df$effective_marker_sizes <- factor(info_df$effective_marker_sizes, 
                                 levels=as.factor(effective_marker_sizes))
 info_df$trait_number <- as.numeric(info_df$trait_number)
 info_df$family <- paste(info_df$parent1, info_df$parent2, sep="_")
-info_df <- info_df[, c("family", "effective_marker_sizes", "trait_number")]
+info_df <- info_df[, c("family", "h2s", "effective_marker_sizes", "trait_number")]
 
 info_df$BV_mean <- NA
 info_df$BV_sd <- NA
@@ -37,33 +38,25 @@ for (i in 1:nrow(info_df)){
   
 }
 
+# file_names_pred <- list.files("simulate_crosses_best_parents/offspring_family_info_pred/")
 
-
-results_best <- info_df[rep(1:nrow(info_df), length(h2s)), ]
-results_best$h2s <- rep(h2s, each=nrow(info_df))
-results_best$predY_RR_mean <- NA
-results_best$predY_RR_sd <- NA
-results_best$predY_mean <- NA
-results_best$predY_sd <- NA
-
-file_names_pred <- list.files("simulate_crosses_best_parents/offspring_family_info_pred/")
-
+info_df$predY_RR_mean <- NA
+info_df$predY_RR_sd <- NA
+info_df$predY_mean <- NA
+info_df$predY_sd <- NA
 for (i in 1:nrow(info_df)){
   offspring = readRDS(paste("simulate_crosses_best_parents/offspring_family_info_pred/", 
                             rownames(info_df)[i], sep=""))
-  results_best[c(
-    i, i + nrow(info_df), i + nrow(info_df)*2
-  ), c("predY_RR_mean", "predY_RR_sd", "predY_mean", "predY_sd")] = 
+  info_df[i, c("predY_RR_mean", "predY_RR_sd", "predY_mean", "predY_sd")] = 
     cbind(offspring[[2]], sqrt(offspring[[3]]), offspring[[5]], sqrt(offspring[[6]]))
 }
 
-saveRDS(info_df, "view_usefulness_best_parents/info_df.rds")
 saveRDS(results_best, "view_usefulness_best_parents/results_best.rds")
 
 
 
-results_use <- results_best[rep(1:nrow(results_best), 2), ]
-results_use$si <- rep(si, each=nrow(results_best))
+results_use <- info_df[rep(1:nrow(info_df), 2), ]
+results_use$si <- rep(si, each=nrow(info_df))
 results_use$BV_use <- results_use$BV_mean + results_use$si * results_use$BV_sd
 results_use$predY_RR_use <- results_use$predY_RR_mean + results_use$si * results_use$predY_RR_sd
 results_use$predY_use <- results_use$predY_mean + results_use$si * results_use$predY_sd
