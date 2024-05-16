@@ -37,6 +37,8 @@ marker_list_error[2:7] <- lapply(marker_list_error_names, FUN=function(x){
 
 
 offspring_names <- list.files("simulate_crosses/", pattern="offspring_list_")
+set.seed(1)
+offspring_names <- sample(offspring_names, 500)
 offspring_temp <- readRDS(paste("simulate_crosses/", offspring_names[1], sep=""))
 
 offspring <- vector(mode="list", length=length(chrom_names))
@@ -47,10 +49,10 @@ for (j in 1:length(chrom_names)){
 offspring_ped <- data.frame(parent1 = rep(NA, length(offspring_names)), 
                              parent2 = rep(NA, length(offspring_names)))
 
-set.seed(1)
+# set.seed(1)
 offspring_random <- sample(1:200, length(offspring_names), replace=T)
 head(offspring_random)
-# [1]  68 167 129 162  43  14
+# [1]  97 177 156  12  61  56
 for (i in 1:length(offspring_names)){
   offspring_temp = readRDS(paste("simulate_crosses/", offspring_names[i], sep=""))
   offspring_ped[i, ] = offspring_temp[[1]]

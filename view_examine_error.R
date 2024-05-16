@@ -38,7 +38,6 @@ for (h in 1:length(phasing_error)){
 }
 
 # saveRDS(score_summ, "view_examine_error/score_summ.rds")
-# score_summ <- readRDS("view_examine_error3/score_summ.rds")
 
 score_summ$error_rate <- 1 - score_summ$num_corr/score_summ$num_compr
 score_summ$cM <- factor(score_summ$cM, levels=c(">0.01cM", ">0.1cM & 1cM", ">1cM & <10cM", 
@@ -48,7 +47,6 @@ score_summ$error_level <- as.character(score_summ$error_level)
 
 
 score_real <- readRDS("get_phase_error/score.rds")
-# score_not_consc <- readRDS("codes/get_phase_error6_2_score.rds")
 
 comp_real <- apply(score_real[3:4, , , , ], c(3), function(x){sum(!is.na(x))})
 # comp_not_consc <- apply(score_not_consc[3:4, , , , ], c(3), function(x){sum(!is.na(x))})

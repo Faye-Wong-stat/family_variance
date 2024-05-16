@@ -294,6 +294,8 @@ for (h in 1:length(si)){
 results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marker_sizes, 
                                              levels=as.factor(effective_marker_sizes))
 
+saveRDS(results_cor_use, "view_usefulness/results_cor_use.rds")
+
 # 30 = 2*3*5
 results_se_use <- matrix(NA, nrow=30, ncol=11)
 results_se_use <- as.data.frame(results_se_use)
@@ -336,6 +338,7 @@ p3 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
+  ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
@@ -360,6 +363,7 @@ p10 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
+  ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
@@ -448,6 +452,7 @@ p4 <-
   geom_line(aes(y=use_mean_mean, color=i), linewidth=0.5) + 
   xlab("number of causal loci") + 
   ylab("correlation between BV mean \nand usefulness") + 
+  ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) +
   scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="selection intensity")) + 

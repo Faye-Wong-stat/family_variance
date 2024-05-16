@@ -24,7 +24,7 @@ get_error_location <- function(error_location, chrom_info){
   # error_location: locations of error in cM
   # chrom_info: locations of marker in cM (with length of number of markers)
   # output: vector of true and false (with length of number of markers)
-  # true indicates a switch between two chromosomes, 
+  # true indicates a switch between two markers, 
   # false not
   position = sapply(error_location, FUN=function(x){
     which(x<chrom_info)[1]
@@ -78,13 +78,13 @@ error_number <- lapply(error_number_names, FUN=function(x){
 
 summary(as.vector(error_number[[1]]))
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 0.000   0.000   1.000   1.126   2.000   7.000 
+# 0.000   0.000   1.000   1.109   2.000   8.000 
 summary(as.vector(error_number[[2]]))
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 0.000   1.000   2.000   2.229   3.000  11.000
+# 0.000   1.000   2.000   2.229   3.000  13.000 
 summary(as.vector(error_number[[3]]))
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-# 0.000   4.000   5.000   5.576   7.000  19.000 
+# 0.000   4.000   5.000   5.579   7.000  19.000
 
 
 

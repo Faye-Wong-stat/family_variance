@@ -4,12 +4,104 @@ library(cowplot)
 
 
 
-effective_marker_sizes <- c(4, 16, 64, 256, 512, 1024)
-sf <- c(0.8, 0.9, 0.95, 0.98)
+effective_marker_sizes <- c(4, 16, 64, 256, 1024)
+h2s <- c(0.8, 0.5, 0.2)
+sf <- c(0.8, 0.99)
 b <- qnorm(sf, 0, 1)
 si <- dnorm(b, 0, 1) / pnorm(b, 0, 1, lower.tail=F)
 
-parents_types <- c("random", "random 190", "best parents")
+
+
+results_cor_use <- readRDS("view_usefulness/results_cor_use.rds")
+results_cor_use_best <- readRDS("view_usefulness_best_parents/results_cor_use.rds")
+
+results_cor_use_mean <- matrix(NA, nrow=30, ncol=5)
+results_cor_use_mean <- as.data.frame(results_cor_use_mean)
+colnames(results_cor_use_mean) <- c("si", "h2s", "effective_marker_sizes", "mean", "se")
+for (h in 1:length(si)){
+  for (i in 1:length(h2s)){
+    for (j in 1:length(effective_marker_sizes)){
+      A = results_cor_use[results_cor_use$si == si[h] & 
+                            results_cor_use$h2s == h2s[i] & 
+                            results_cor_use$effective_marker_sizes == effective_marker_sizes[j], ]
+      results_cor_use_mean[(h-1)*3*5 + (i-1)*5 + j, ] = 
+        c(si[h], h2s[i], effective_marker_sizes[j], 
+          mean(A$realuse_realmean_cor), sd(A$realuse_realmean_cor)/sqrt(20))
+    }
+  }
+}
+
+results_cor_use_mean_best <- matrix(NA, nrow=30, ncol=5)
+results_cor_use_mean_best <- as.data.frame(results_cor_use_mean_best)
+colnames(results_cor_use_mean_best) <- c("si", "h2s", "effective_marker_sizes", "mean", "se")
+for (h in 1:length(si)){
+  for (i in 1:length(h2s)){
+    for (j in 1:length(effective_marker_sizes)){
+      A = results_cor_use_best[results_cor_use_best$si == si[h] & 
+                                 results_cor_use_best$h2s == h2s[i] & 
+                                 results_cor_use_best$effective_marker_sizes == effective_marker_sizes[j], ]
+      results_cor_use_mean_best[(h-1)*3*5 + (i-1)*5 + j, ] = 
+        c(si[h], h2s[i], effective_marker_sizes[j], 
+          mean(A$realuse_realmean_cor), sd(A$realuse_realmean_cor)/sqrt(20))
+    }
+  }
+}
+
+results_cor_use$`parent type` <- "random parents"
+results_cor_use_best$`parent type` <- "best parents"
+results_cor_use_mean$`parent type` <- "random parents"
+results_cor_use_mean_best$`parent type` <- "best parents"
+results_cor_use <- rbind(results_cor_use, results_cor_use_best)
+results_cor_use_mean <- rbind(results_cor_use_mean, results_cor_use_mean_best)
+
+results_cor_use$i <- paste("i == ", round(results_cor_use$si, 2), sep="")
+results_cor_use$h2 <- paste("h^2 == ", results_cor_use$h2s, sep="")
+results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marker_sizes, 
+                                                 levels=as.factor(effective_marker_sizes))
+results_cor_use_mean$i <- paste("i == ", round(results_cor_use_mean$si, 2), sep="")
+results_cor_use_mean$h2 <- paste("h^2 == ", results_cor_use_mean$h2s, sep="")
+results_cor_use_mean$effective_marker_sizes <- factor(results_cor_use_mean$effective_marker_sizes, 
+                                                 levels=as.factor(effective_marker_sizes))
+
+
+
+p1 <- ggplot(results_cor_use, aes(effective_marker_sizes, realuse_realmean_cor, 
+                                  color=`parent type`)) + 
+  geom_boxplot(position="dodge") + 
+  facet_grid(i~h2, labeller = label_parsed) +
+  xlab("number of causal loci") + 
+  ylab("correlation between BV mean \nand usefulness") + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
+  theme_minimal_grid(font_size=8) + 
+  theme(legend.position="bottom") 
+
+save_plot("plot_BV_family_mean_sd/trans_cor_mean_use.pdf", 
+          # prow,
+          plot_grid(p1),
+          base_width=6.5, base_height=4.33)
+
+p2 <- ggplot(results_cor_use_mean, aes(as.numeric(effective_marker_sizes))) + 
+  geom_point(aes(y=mean, colour=`parent type`)) + 
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, colour=`parent type`), width=0.2) + 
+  geom_line(aes(y=mean, colour=`parent type`), linewidth=0.5) + 
+  facet_grid(i~h2, labeller = label_parsed) +
+  xlab("number of causal loci") + 
+  ylab("correlation between BV mean \nand usefulness") + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
+  theme_minimal_grid(font_size=8) + 
+  theme(legend.position="bottom") 
+
+save_plot("plot_BV_family_mean_sd/trans_cor_mean_use2.pdf", 
+          # prow,
+          plot_grid(p2),
+          base_width=6.5, base_height=4.33)
+
+
+
+
+
+
 
 fam_mean_sd <- readRDS("view_usefulness/fam_mean_sd.rds")
 fam_mean_sd <- fam_mean_sd[, 1:43]

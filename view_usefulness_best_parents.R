@@ -48,10 +48,11 @@ for (i in 1:nrow(info_df)){
   offspring = readRDS(paste("simulate_crosses_best_parents/offspring_family_info_pred/", 
                             rownames(info_df)[i], sep=""))
   info_df[i, c("predY_RR_mean", "predY_RR_sd", "predY_mean", "predY_sd")] = 
-    cbind(offspring[[2]], sqrt(offspring[[3]]), offspring[[5]], sqrt(offspring[[6]]))
+    c(offspring[[2]], sqrt(offspring[[3]]), offspring[[5]], sqrt(offspring[[6]]))
 }
 
-saveRDS(results_best, "view_usefulness_best_parents/results_best.rds")
+saveRDS(info_df, "view_usefulness_best_parents/info_df.rds")
+info_df <- readRDS("view_usefulness_best_parents/info_df.rds")
 
 
 
@@ -87,6 +88,8 @@ for (h in 1:length(si)){
 }
 results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marker_sizes, 
                                                  levels=as.factor(effective_marker_sizes))
+
+saveRDS(results_cor_use, "view_usefulness_best_parents/results_cor_use.rds")
 
 # 2*3*5
 results_se_use <- matrix(NA, nrow=30, ncol=11)
@@ -128,8 +131,9 @@ p1 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
   ylab("accuracy") + 
+  ylim(-0.25, 0.75) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold")) + 
+  scale_colour_manual(values=c("blue", "gold2")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +
@@ -143,41 +147,7 @@ save_plot(paste("view_usefulness_best_parents/plots/", "fam_cor_best_parents.pdf
 
 
 
-cor_best_par <- 
-  readRDS("/home/wang9418/strawberry_outcross_project/view_usefulness_best_parents/cor_best_par.rds")
 
-effective_marker_sizes <- c(4, 16, 64, 256, 512, 1024)
-h2s <- c(0.9, 0.7, 0.5, 0.3, 0.1)
-sf <- c(0.8, 0.9, 0.95, 0.98)
-b <- qnorm(sf, 0, 1)
-si <- dnorm(b, 0, 1) / pnorm(b, 0, 1, lower.tail=F)
-si <- round(si, 2)
-
-cor_best_par_df <- data.frame(h2 = rep(h2s, each=(6*4*20)),
-                              number_of_QTL =
-                                rep(rep(effective_marker_sizes, each=4*20), 5),
-                              si = rep(rep(si, each=20), 5*6),
-                              replic = rep(1:20, 5*6*4),
-                              cor_ucBV_ucpred = rep(NA, (6*5*4*20)),
-                              cor_ucBV_meanpred = rep(NA, (6*5*4*20)),
-                              cor_ucBV_ucRR = rep(NA, (6*4*5*20)),
-                              cor_ucBV_meanRR = rep(NA, (6*5*4*20)))
-for (i in 1:nrow(cor_best_par_df)){
-  cor_best_par_tb = cor_best_par[cor_best_par$h2 == cor_best_par_df$h2[i] &
-                                   cor_best_par$number_of_QTL == cor_best_par_df$number_of_QTL[i] &
-                                   cor_best_par$si == cor_best_par_df$si[i] &
-                                   cor_best_par$replic == cor_best_par_df$replic[i], ]
-  cor_best_par_df[i, c("cor_ucBV_ucpred", "cor_ucBV_meanpred", "cor_ucBV_ucRR", "cor_ucBV_meanRR")] =
-    c(cor(cor_best_par_tb$BV_uc, cor_best_par_tb$pred_uc),
-      cor(cor_best_par_tb$BV_uc, cor_best_par_tb$pred_mean),
-      cor(cor_best_par_tb$BV_uc, cor_best_par_tb$pred_RR_uc),
-      cor(cor_best_par_tb$BV_uc, cor_best_par_tb$pred_RR_mean))
-  # print(i)
-}
-cor_best_par_df$number_of_QTL <- factor(cor_best_par_df$number_of_QTL, 
-                                        levels=effective_marker_sizes)
-cor_best_par_df$h2 <- paste("h^2 == ", cor_best_par_df$h2, sep="")
-cor_best_par_df$si <- paste("i == ", cor_best_par_df$si ,sep="")
 
 
 
