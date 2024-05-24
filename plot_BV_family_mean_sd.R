@@ -65,12 +65,15 @@ results_cor_use_mean$effective_marker_sizes <- factor(results_cor_use_mean$effec
 
 
 
-p1 <- ggplot(results_cor_use, aes(effective_marker_sizes, realuse_realmean_cor, 
-                                  color=`parent type`)) + 
-  geom_boxplot(position="dodge") + 
-  facet_grid(i~h2, labeller = label_parsed) +
+p1 <- ggplot(results_cor_use_mean[results_cor_use_mean$h2s == 0.5, ], 
+             aes(as.numeric(effective_marker_sizes))) + 
+  geom_point(aes(y=mean, colour=`parent type`)) + 
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, colour=`parent type`), width=0.2) + 
+  geom_line(aes(y=mean, colour=`parent type`), linewidth=0.5) + 
+  facet_grid(~i, labeller = label_parsed) +
   xlab("number of causal loci") + 
   ylab("correlation between BV mean \nand usefulness") + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold2")) + 
   theme_minimal_grid(font_size=8) + 
   theme(legend.position="bottom") 
@@ -78,7 +81,7 @@ p1 <- ggplot(results_cor_use, aes(effective_marker_sizes, realuse_realmean_cor,
 save_plot("plot_BV_family_mean_sd/trans_cor_mean_use.pdf", 
           # prow,
           plot_grid(p1),
-          base_width=6.5, base_height=4.33)
+          base_width=6.5, base_height=3.3)
 
 p2 <- ggplot(results_cor_use_mean, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=mean, colour=`parent type`)) + 

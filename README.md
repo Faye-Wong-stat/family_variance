@@ -3,7 +3,7 @@ title: Why is usefulness rarely useful
 author: Fangyi Wang
 ---
 
-This document describes the scripts used in this project. The order to run scripts follows the order of scripts listed in this document, as later scripts use data generated from previous scripts. 
+This document lists the scripts used in this project. The order to run scripts follows the order of scripts listed in this document, as later scripts use data generated from previous scripts. 
 
 # Prepare data for phasing
 "remove_end_progenies.R": 
@@ -41,6 +41,7 @@ This document describes the scripts used in this project. The order to run scrip
 
 # Calculate the predictive ability of family mean, variance and usefulness
 "view_usefulness.R"
+    Figures 2-4
 "examine_usefulness.R": 
     archived
 
@@ -50,12 +51,19 @@ This document describes the scripts used in this project. The order to run scrip
 "view_crosses_best_parents.R" :
     archived
 "view_usefulness_best_parents.R"
+    Figure 6
 "plot_BV_family_mean_sd.R": 
-    this is for plotting
+    Figure 5
 
 # Introduce phasing error
 "create_marker_list2.R": 
     archived
 "introduce_error.R"
 "examine_error.R"
-"view_examine_error.R"
+"view_examine_error.R":
+    Figure 1
+
+# housekeeping 
+"view_phenotypes.R"
+"simulate_phenotypes_crosses2.R"
+"view_correlation.R"
