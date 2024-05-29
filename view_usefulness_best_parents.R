@@ -90,6 +90,7 @@ results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marke
                                                  levels=as.factor(effective_marker_sizes))
 
 saveRDS(results_cor_use, "view_usefulness_best_parents/results_cor_use.rds")
+results_cor_use <- readRDS("view_usefulness_best_parents/results_cor_use.rds")
 
 # 2*3*5
 results_se_use <- matrix(NA, nrow=30, ncol=11)
@@ -133,7 +134,7 @@ p1 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   ylab("accuracy") + 
   ylim(-0.25, 0.75) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +

@@ -1,4 +1,4 @@
-# select best parents for crosses based on true BV
+# select best parents for crosses based on predicted BV
 
 setwd("~/family_variance/")
 # library(ggplot2)
@@ -60,7 +60,7 @@ best_parents[1:3, 1:6]
 # 4 0.8             4      3 16C507P040 16C100P031 16C536P027
 
 write.table(best_parents, "select_best_parents/best_parents.txt", row.names=F, col.names=F)
-# best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ")
+# best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ", header=F)
 # write.table(medium_parents, "select_best_parents/medium_parents.txt", row.names=F, col.names=F)
 
 

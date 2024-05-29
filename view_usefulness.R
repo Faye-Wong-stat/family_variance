@@ -162,7 +162,7 @@ p1 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_mean)) +
   geom_line(color="blue", linewidth=0.5) +
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("accuracy") + 
+  ylab("prediction accuracy\nof mean") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
@@ -192,10 +192,10 @@ p2 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   facet_wrap(~h2, labeller = label_parsed) + 
   # ylim(-0.25, 1) +
   xlab("number of causal loci") +
-  ylab("accuracy") +
+  ylab("prediction accuracy\nof standard deviation") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   theme_minimal_grid(font_size=10) +
   theme(strip.text.x = element_blank(), 
         legend.position = "bottom") + 
@@ -220,7 +220,7 @@ p8 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_RR_mean)) 
   geom_line(color="blue", linewidth=0.5) +
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("accuracy") + 
+  ylab("prediction accuracy\nof mean") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
@@ -243,10 +243,10 @@ p9 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   facet_wrap(~h2, labeller = label_parsed) + 
   # ylim(-0.25, 1) +
   xlab("number of causal loci") +
-  ylab("accuracy") +
+  ylab("prediction accuracy\nof standard deviation") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   theme_minimal_grid(font_size=10) +
   theme(strip.text.x = element_blank(), 
         legend.position = "bottom") + 
@@ -337,10 +337,10 @@ p3 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   facet_grid(i~h2, labeller = label_parsed) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
-  ylab("accuracy") + 
+  ylab("prediction accuracy\nof usefulness") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +
@@ -362,10 +362,10 @@ p10 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   facet_grid(i~h2, labeller = label_parsed) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
-  ylab("accuracy") + 
+  ylab("prediction accuracy\nof usefulness") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +
@@ -432,10 +432,13 @@ results_cor_usemean_varmean_varsisd$log_var_si_sd <-
 
 results_var <- results_cor_usemean_varmean_varsisd[rep(1:nrow(results_cor_usemean_varmean_varsisd), 2), 
                                                    c(1:3, 7)]
-results_var$variance <- rep(c("variance of mean", "variance of i*sd"), 
+results_var$variance_type <- rep(c("variance of mean", "variance of i*sd"), 
                             each=nrow(results_cor_usemean_varmean_varsisd))
+results_var$variance <- NA
 results_var$log_variance <- NA
 for (i in 1:nrow(results_cor_usemean_varmean_varsisd)) {
+  results_var$variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
+    unlist(results_cor_usemean_varmean_varsisd[i, 5:6])
   results_var$log_variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
     unlist(results_cor_usemean_varmean_varsisd[i, 8:9])
 }
@@ -454,20 +457,22 @@ p4 <-
   ylab("correlation between BV mean \nand usefulness") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) +
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   guides(color=guide_legend(title="selection intensity")) + 
   # scale_color_discrete(name="selection intensity", labels = parse(text=unique(results_se_usemean$i))) + 
   theme_minimal_grid(font_size=8)
 # dev.off()
 # pdf("view_usefulness/plots/test1.pdf")
 p5 <- 
-  ggplot(results_var, aes(effective_marker_sizes, log_variance, color=variance)) + 
+  ggplot(results_var, aes(effective_marker_sizes, variance, color=variance_type)) + 
   geom_boxplot(position = "dodge") + 
   facet_wrap(~i, labeller = label_parsed) + 
+  scale_y_log10() + 
   xlab("number of causal loci") + 
-  ylab("variance of i*sd (log10)") + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
-  theme_minimal_grid(font_size=8)
+  ylab("variance of mean or i*sd") + 
+  scale_colour_manual(values=c("gold3", "blue")) + 
+  guides(color=guide_legend(title="variance type")) + 
+  theme_minimal_grid(font_size=8) 
 # dev.off()
 # pdf("view_usefulness/plots/test1.pdf")
 # p5 <-

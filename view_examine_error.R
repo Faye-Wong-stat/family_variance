@@ -86,7 +86,7 @@ cols[levels(score_summ$error_level)=="real_trios"] <- "black"
 p1 <- ggplot(data=score_summ, aes(x=cM, y=error_rate, group=error_level, color=error_level)) + 
   geom_line() + 
   xlab("pairwise distance") + ylab("fraction of inconsistent phasing") + 
-  ylim(0, 0.5) + 
+  coord_cartesian(ylim=c(0, 0.5)) + 
   scale_color_manual(values=cols) + 
   scale_x_discrete(guide=guide_axis(angle=45)) + 
   labs(colour="phase error rate \nper 1 cM") + 
