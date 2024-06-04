@@ -59,10 +59,10 @@ This document lists the scripts used in this project. The order to run scripts f
 
 "simulate_crosses_best_parents.R"
 
-"view_crosses_best_parents.R" :
+"view_crosses_best_parents.R": 
     archived
 
-"view_usefulness_best_parents.R"
+"view_usefulness_best_parents.R": 
     Figure 6
 
 "plot_BV_family_mean_sd.R": 
