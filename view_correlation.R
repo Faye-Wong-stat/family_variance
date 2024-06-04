@@ -107,31 +107,59 @@ for (h in 1:length(select_number)){
     }
   }
 }
-B = results_3[results_3$h2s == h2s[i] & 
-                results_3$effective_marker_sizes == effective_marker_sizes[j] & 
-                results_3$trait_number == k, ]
 results_cor$effective_marker_sizes <- factor(results_cor$effective_marker_sizes, 
                                              levels=as.factor(effective_marker_sizes))
 
-p1 <- ggplot(results_cor, aes(number_offspring)) + 
-  geom_line(aes(y=mean_cor, group=trait_number), color="blue", linewidth=0.2) + 
+# 5*5*3 = 75
+results_cor_se <- matrix(NA, nrow=75, ncol=13)
+results_cor_se <- as.data.frame(results_cor_se)
+colnames(results_cor_se) <- c("number_offspring", "h2s", "effective_marker_sizes", 
+                              "mean_cor_mean_RR", "mean_cor_se_RR", "sd_cor_mean_RR", "sd_cor_se_RR", 
+                              "mean_cor_mean", "mean_cor_se", "sd_cor_mean", "sd_cor_se", 
+                              "sd_het_cor_mean", "sd_het_cor_se")
+for (h in 1:length(select_number)){
+  for (i in 1:length(h2s)){
+    for (j in 1:length(effective_marker_sizes)){
+      A = results_cor[results_cor$number_offspring==select_number[h] & 
+                        results_cor$h2s == h2s[i] & 
+                        results_cor$effective_marker_sizes == effective_marker_sizes[j], ]
+      results_cor_se[(h-1)*3*5 + (i-1)*5 + j, ] = 
+        c(select_number[h], h2s[i], effective_marker_sizes[j], 
+          mean(A$mean_RR_cor), sd(A$mean_RR_cor)/sqrt(20), mean(A$sd_RR_cor), sd(A$sd_RR_cor)/sqrt(20), 
+          mean(A$mean_cor), sd(A$mean_cor)/sqrt(20), mean(A$sd_cor), sd(A$sd_cor)/sqrt(20), 
+          mean(A$sd_het_cor), sd(A$sd_het_cor)/sqrt(20))
+    }
+  }
+}
+
+p1 <- ggplot(results_cor_se, aes(number_offspring)) + 
+  geom_point(aes(y=mean_cor_mean), color="blue") + 
+  geom_errorbar(aes(ymin=mean_cor_mean-mean_cor_se, ymax=mean_cor_mean+mean_cor_se), 
+                width=20, color="blue") + 
+  geom_line(aes(y=mean_cor_mean), color="blue", linewidth=0.5) + 
   facet_grid(h2s~effective_marker_sizes) + 
   xlab("number of offspring used") + 
-  ylab("accuracy of family mean") + 
+  ylab("prediction accuracy of family mean") + 
   ylim(0, 1) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
   theme_minimal_grid(font_size=10) #+
   # theme(axis.title.x=element_blank(),
   #       axis.text.x=element_blank(),
   #       axis.ticks.x=element_blank())
-p2 <- ggplot(results_cor, aes(number_offspring)) + 
-  geom_line(aes(y=sd_cor, group=trait_number, colour="prediction from model"), linewidth=0.2) + 
-  geom_line(aes(y=sd_het_cor, group=trait_number, colour="prediction from parental heterozygosity"), linewidth=0.2) + 
+p2 <- ggplot(results_cor_se, aes(number_offspring)) + 
+  geom_point(aes(y=sd_cor_mean, colour="prediction from model")) + 
+  geom_errorbar(aes(ymin=sd_cor_mean-sd_cor_se, ymax=sd_cor_mean+sd_cor_se, 
+                    colour="prediction from model"), width=20) + 
+  geom_line(aes(y=sd_cor_mean, colour="prediction from model"), linewidth=0.5) + 
+  geom_point(aes(y=sd_het_cor_mean, colour="prediction from parental heterozygosity")) + 
+  geom_errorbar(aes(ymin=sd_het_cor_mean-sd_het_cor_se, ymax=sd_het_cor_mean+sd_het_cor_se, 
+                    colour="prediction from parental heterozygosity"), width=20) + 
+  geom_line(aes(y=sd_het_cor_mean, colour="prediction from parental heterozygosity"), linewidth=0.5) + 
   facet_grid(h2s~effective_marker_sizes) + 
   xlab("number of offspring used") + 
-  ylab("accuracy of family sd") + 
+  ylab("prediction accuracy of family sd") + 
   ylim(0, 1) + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   theme_minimal_grid(font_size=10) + 
   theme(legend.position = "bottom") +  
   guides(colour=guide_legend(title="prediction method", nrow=1))
@@ -150,7 +178,7 @@ results_use$BV_use <- results_use$BV_mean + results_use$si * results_use$BV_sd
 results_use$predY_RR_use <- results_use$predY_RR_mean + results_use$si * results_use$predY_RR_sd
 results_use$predY_use <- results_use$predY_mean + results_use$si * results_use$predY_sd
 
-# 5*2*3*5*20
+# 5*2*3*5*20 = 3000
 results_cor_use <- matrix(NA, nrow=3000, ncol=10)
 results_cor_use <- as.data.frame(results_cor_use)
 colnames(results_cor_use) <- c("number_offspring", "si", "h2s", "effective_marker_sizes", "trait_number", 
@@ -179,18 +207,52 @@ for (g in 1:length(select_number)){
 
 results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marker_sizes, 
                                                  levels=as.factor(effective_marker_sizes))
-results_cor_use_2 <- results_cor_use[results_cor_use$si==si[2], ]
+# results_cor_use_2 <- results_cor_use[results_cor_use$si==si[2], ]
 
-p3 <- ggplot(results_cor_use_2, aes(number_offspring)) + 
-  geom_line(aes(y=use_mean_cor, group=trait_number, colour="predicted from family mean"), 
+# 5*2*3*5
+results_cor_use_se <- matrix(NA, nrow=150, ncol=12)
+results_cor_use_se <- as.data.frame(results_cor_use_se)
+colnames(results_cor_use_se) <- c("number_offspring", "si", "h2s", "effective_marker_sizes", 
+                                  "use_mean_RR_mean", "use_mean_RR_se", "use_use_RR_mean", "use_use_RR_se", 
+                                  "use_mean_mean", "use_mean_se", "use_use_mean", "use_use_se")
+for (g in 1:length(select_number)){
+  for (h in 1:length(si)){
+    for (i in 1:length(h2s)){
+      for (j in 1:length(effective_marker_sizes)){
+        A = results_cor_use[results_cor_use$number_offspring==select_number[g] & 
+                              results_cor_use$si == si[h] & 
+                              results_cor_use$h2s == h2s[i] & 
+                              results_cor_use$effective_marker_sizes == effective_marker_sizes[j], ]
+        results_cor_use_se[(g-1)*2*3*5 + (h-1)*3*5 + (i-1)*5 + j, ] = 
+          c(select_number[g], si[h], h2s[i], effective_marker_sizes[j], 
+            mean(A$use_mean_RR_cor), sd(A$use_mean_RR_cor)/sqrt(20), 
+            mean(A$use_use_RR_cor), sd(A$use_use_RR_cor)/sqrt(20), 
+            mean(A$use_mean_cor), sd(A$use_mean_cor)/sqrt(20), 
+            mean(A$use_use_cor), sd(A$use_use_cor)/sqrt(20))
+      }
+    }
+  }
+}
+results_cor_use_se_2 <- results_cor_use_se[results_cor_use_se$si==si[2], ]
+
+
+
+p3 <- ggplot(results_cor_use_se_2, aes(number_offspring)) + 
+  geom_point(aes(y=use_mean_mean, colour="predicted from family mean")) + 
+  geom_errorbar(aes(ymin=use_mean_mean-use_mean_se, ymax=use_mean_mean+use_mean_se, 
+                    colour="predicted from family mean"), width=20) + 
+  geom_line(aes(y=use_mean_mean, colour="predicted from family mean"), 
             linewidth=0.2) + 
-  geom_line(aes(y=use_use_cor, group=trait_number, colour="predicted from family usefulness"), 
+  geom_point(aes(y=use_use_mean, colour="predicted from family usefulness")) + 
+  geom_errorbar(aes(ymin=use_use_mean-use_use_se, ymax=use_use_mean+use_use_se, 
+                    colour="predicted from family usefulness"), width=20) + 
+  geom_line(aes(y=use_use_mean, colour="predicted from family usefulness"), 
             linewidth=0.2) + 
   facet_grid(h2s~effective_marker_sizes) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of offspring used") + 
-  ylab("accuracy") + 
-  scale_colour_manual(values=c("blue", "gold2")) + 
+  ylab("prediction accuracy of usefulness") + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
   guides(color=guide_legend(title="prediction method", nrow=1)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
   theme_minimal_grid(font_size=10) +

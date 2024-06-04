@@ -63,7 +63,10 @@ This document lists the scripts used in this project. The order to run scripts f
 "view_examine_error.R":
     Figure 1
 
-# housekeeping 
+# Calculate the mean and variance by gametes
+
+
+# housekeeping: archived
 "view_phenotypes.R"
 "simulate_phenotypes_crosses2.R"
 "view_correlation.R"

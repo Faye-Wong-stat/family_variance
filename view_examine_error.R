@@ -13,7 +13,7 @@ score <- readRDS("examine_error/score.rds")
 
 score_summ <- data.frame(error_level = rep(phasing_error, each=5), 
                          cM = rep(c(">100cM", ">10cM & <100cM", ">1cM & <10cM", 
-                                    ">0.1cM & 1cM", ">0.01cM"), 7), 
+                                    ">0.1cM & <1cM", ">0.01cM"), 7), 
                          num_compr = rep(NA, 7*5), 
                          num_corr = rep(NA, 7*5))
 
@@ -40,7 +40,7 @@ for (h in 1:length(phasing_error)){
 # saveRDS(score_summ, "view_examine_error/score_summ.rds")
 
 score_summ$error_rate <- 1 - score_summ$num_corr/score_summ$num_compr
-score_summ$cM <- factor(score_summ$cM, levels=c(">0.01cM", ">0.1cM & 1cM", ">1cM & <10cM", 
+score_summ$cM <- factor(score_summ$cM, levels=c(">0.01cM", ">0.1cM & <1cM", ">1cM & <10cM", 
                                                 ">10cM & <100cM", ">100cM"))
 score_summ$error_level <- as.character(score_summ$error_level)
 
@@ -59,13 +59,13 @@ error_real <- apply(score_real[3:4, , , , ], c(3), function(x){sum(x, na.rm=T)})
 
 errors <- data.frame(error_level=rep("real_trios", 5), 
                      cM=c(">100cM", ">10cM & <100cM", ">1cM & <10cM", 
-                          ">0.1cM & 1cM", ">0.01cM"), 
+                          ">0.1cM & <1cM", ">0.01cM"), 
                      num_compr=comp_real, 
                      num_corr=error_real, 
                      error_rate=(1 - error_real/comp_real))
 errors$cM <- factor(c(">100cM", ">10cM & <100cM", ">1cM & <10cM", 
-                      ">0.1cM & 1cM", ">0.01cM"), 
-                    levels=c(">0.01cM", ">0.1cM & 1cM", ">1cM & <10cM", 
+                      ">0.1cM & <1cM", ">0.01cM"), 
+                    levels=c(">0.01cM", ">0.1cM & <1cM", ">1cM & <10cM", 
                              ">10cM & <100cM", ">100cM"))
 
 score_summ <- rbind(score_summ, errors)

@@ -131,7 +131,7 @@ p1 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   facet_grid(i~h2, labeller = label_parsed) +
   # facet_wrap(~h2s, labeller = as_labeller(lbs, label_parsed)) + 
   xlab("number of causal loci") + 
-  ylab("accuracy") + 
+  ylab("prediction accuracy\nof usefulness") + 
   ylim(-0.25, 0.75) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
