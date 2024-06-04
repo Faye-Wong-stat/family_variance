@@ -1,6 +1,5 @@
 
-# title: Why is usefulness rarely useful
-# author: Fangyi Wang
+# Why is usefulness rarely useful
 
 
 This document lists the scripts used in this project. The order to run scripts follows the order of scripts listed in this document, as later scripts use data generated from previous scripts. 
@@ -13,7 +12,7 @@ This document lists the scripts used in this project. The order to run scripts f
         "marker_info.txt"
 "generate_vcffiles.R"
 
-# Phase
+## Phase
 "run_phase_parent.sh"; "run_phase_valid.sh"; "run_phase_all.sh"
 
 # Calculate impuation and phasing error
