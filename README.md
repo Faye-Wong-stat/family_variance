@@ -1,11 +1,11 @@
----
-title: Why is usefulness rarely useful
-author: Fangyi Wang
----
+
+# title: Why is usefulness rarely useful
+# author: Fangyi Wang
+
 
 This document lists the scripts used in this project. The order to run scripts follows the order of scripts listed in this document, as later scripts use data generated from previous scripts. 
 
-# Prepare data for phasing
+### Prepare data for phasing
 "remove_end_progenies.R": 
     input data: 
         "pedigree_genotyped.txt"
