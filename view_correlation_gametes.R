@@ -20,7 +20,7 @@ file_names         <- gsub("_result_df.rds", "", file_names_results)
 Z                        <- readRDS("simulate_phenotypes/Z.rds")
 effective_marker_indices <- readRDS("simulate_phenotypes/effective_marker_indices.rds")
 
-results_10000            <- readRDS("view_usefulness/results.rds")
+# results_10000            <- readRDS("view_usefulness/results.rds")
 
 
 
@@ -77,53 +77,60 @@ for (i in 1:nrow(results_10000)){
   
   results_10000[i, c("gametes_BV_mean", "gametes_BV_sd")] = c(mean, sd)
 }
+saveRDS(results_10000, "view_correlation_gametes/results_10000.rds")
+results_10000 <- readRDS("view_correlation_gametes/results_10000.rds")
 
-correlation_df           <- matrix(NA, nrow=nrow(results_10000), ncol=9)
+
+
+# 3*5*20 = 300
+correlation_df           <- matrix(NA, nrow=300, ncol=5)
 correlation_df           <- as.data.frame(correlation_df)
-colnames(correlation_df) <- c("family", "parent1", "parent2", 
-                              "h2s", "effective_marker_sizes", "trait_number", 
-                              "BV_mean_cor", "BV_sd_cor", "BV_var_cor")
+colnames(correlation_df) <- c("h2s", "effective_marker_sizes", "trait_number", "BV_mean_cor", "BV_sd_cor")
 
+for (i in 1:length(h2s)){
+  for (j in 1:length(effective_marker_sizes)){
+    for (k in 1:20){
+      print((i-1)*5*20 + (j-1)*20 + k)
+      A = results_10000[results_10000$h2s==h2s[i] & 
+                          results_10000$effective_marker_sizes==effective_marker_sizes[j] & 
+                          results_10000$trait_number==k, ]
+      
+      correlation_df[(i-1)*5*20 + (j-1)*20 + k, ] = 
+        c(h2s[i], effective_marker_sizes[j], k, 
+          cor(A$BV_mean, A$gametes_BV_mean), cor(A$BV_sd, A$gametes_BV_sd))
+    }
+  }
+}
+correlation_df$effective_marker_sizes <- factor(correlation_df$effective_marker_sizes, 
+                                                levels=as.factor(effective_marker_sizes))
+saveRDS(correlation_df, "view_correlation_gametes/correlation_df.rds")
+correlation_df <- readRDS("view_correlation_gametes/correlation_df.rds")
 
-family   = results_10000[i, "family"]
-h2       = results_10000[i, "h2s"]
-no_QTL   = results_10000[i, "effective_marker_sizes"]
-trait_no = results_10000[i, "trait_number"]
-parent1  = strsplit(family, split="_")[[1]][1]
-parent2  = strsplit(family, split="_")[[1]][2]
+p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
+  geom_point(aes(y=BV_mean_cor)) + 
+  facet_wrap(h2s) + 
+  xlab("number of causal loci") + 
+  ylab("prediction accuracy\nof mean") + 
+  ylim(0.99, 1) + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
+  theme_minimal_grid(font_size=10)
+ 
+save_plot(paste("view_correlation_gametes/plots/", "fammean_BV_cor.pdf", sep=""),
+          plot_grid(p1),
+          base_width=6.5, base_height=2.15)
 
-correlation_df[i, c("family","h2s", "effective_marker_sizes", "trait_number")] = 
-  c(family, h2, no_QTL, trait_no)
-correlation_df[i, c("parent1", "parent2")] = 
-  c(parent1, parent2)
+p2 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
+  geom_point(aes(y=BV_sd_cor)) + 
+  facet_wrap(h2s) + 
+  xlab("number of causal loci") + 
+  ylab("prediction accuracy\nof sd") + 
+  ylim(0.7, 1) + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
+  theme_minimal_grid(font_size=10)
 
-mean = mean(results[results$family %in% c(parent1, parent2) & 
-                      results$h2s                   ==h2 & 
-                      results$effective_marker_sizes==no_QTL & 
-                      results$trait_number          ==trait_no, 
-                    "BV_mean"])
-var = sum((results[results$family %in% c(parent1, parent2) & 
-                     results$h2s                   ==h2 & 
-                     results$effective_marker_sizes==no_QTL & 
-                     results$trait_number          ==trait_no, 
-                   "BV_sd"])^2)
-sd = sqrt(var)
-
-results_10000[i, c("gametes_BV_mean", "gametes_BV_sd")] = c(mean, sd)
-
-correlation_df[i, c("BV_mean_cor", "BV_sd_cor", "BV_var_cor")] = 
-  c(cor(results_10000[i, "BV_mean"], mean), 
-    cor(results_10000[i, "BV_mean"], ), 
-    cor(results_10000[i, "BV_mean"], ))
-
-
-
-# correlation between family and gametes mean and sd
-results_BV <- results[results$h2s == h2s[1], ]
-
-# this should be arranged in the order of indiv_names
-BV_mean_family <- vector(mode)
-
+save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
+          plot_grid(p2),
+          base_width=6.5, base_height=2.15)
 
 
 

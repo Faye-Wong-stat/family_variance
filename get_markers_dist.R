@@ -8,7 +8,10 @@ distindex <- function(i, j, n){
   # i:row, j:col, n:number of observations 
   return(n*(i-1) - i*(i-1)/2 + j - i)
 }
+# extract the row and column index of a dist object
 rowcol <- function(ix, n){
+  # ix: the index of an element within the dist object 
+  # n: the length of the object which was the input of dist
   nr=ceiling(n-(1+sqrt(1+4*(n^2-n-2*ix)))/2)
   nc=n-(2*n-nr+1)*nr/2+ix+nr
   return(c(nr,nc))
