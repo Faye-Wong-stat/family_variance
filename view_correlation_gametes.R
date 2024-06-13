@@ -135,13 +135,6 @@ save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
 
 
 
-# create a results table with usefulness
-results_use <- results[rep(1:nrow(results), 2), ]
-results_use$si <- rep(si, each=nrow(results))
-results_use <- results_use[, c(1, 11, 2:10)]
-results_use$BV_use <- results_use$BV_mean + results_use$si * results_use$BV_sd
-results_use$predY_RR_use <- results_use$predY_RR_mean + results_use$si * results_use$predY_RR_sd
-results_use$predY_use <- results_use$predY_mean + results_use$si * results_use$predY_sd
 
 
 
