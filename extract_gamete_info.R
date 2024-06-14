@@ -30,24 +30,22 @@ BV_sd_family <- lapply(BV_sd_family, function(x){
 })
 for (g in 1:length(effective_marker_sizes)){
   for (h in 1:20){
-    BV_mean_family[[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
-    colnames(BV_mean_family[[g]][[h]]) = indiv_names
-    rownames(BV_mean_family[[g]][[h]]) = indiv_names
-    
-    BV_sd_family[[g]][[h]]             = matrix(NA, nrow=1007, ncol=1007)
-    colnames(BV_sd_family[[g]][[h]])   = indiv_names
-    rownames(BV_sd_family[[g]][[h]])   = indiv_names
-    
     print(c(g, h))
-    
     A = results_BV[results_BV$effective_marker_sizes==effective_marker_sizes[g] & 
                      results_BV$trait_number==h , ]
+    A = A[match(indiv_names, A$family), ]
     
     BV_mean_family[[g]][[h]] = outer(A$BV_mean, A$BV_mean, "+")/2
     BV_sd_family[[g]][[h]]   = sqrt(outer((A$BV_sd)^2, (A$BV_sd)^2, "+"))
     
     BV_mean_family[[g]][[h]][lower.tri(BV_mean_family[[g]][[h]], diag = T)] = NA
     BV_sd_family[[g]][[h]][lower.tri(BV_sd_family[[g]][[h]], diag = T)] = NA
+    
+    colnames(BV_mean_family[[g]][[h]]) = indiv_names
+    rownames(BV_mean_family[[g]][[h]]) = indiv_names
+    
+    colnames(BV_sd_family[[g]][[h]])   = indiv_names
+    rownames(BV_sd_family[[g]][[h]])   = indiv_names
   }
 }
 
@@ -63,11 +61,10 @@ for (i in 1:length(BV_use_family)){
 for (e in 1:length(si)){
   for (g in 1:length(effective_marker_sizes)){
     for (h in 1:20){
-      BV_use_family[[e]][[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
+      BV_use_family[[e]][[g]][[h]] = BV_mean_family[[g]][[h]] + si[e] * BV_sd_family[[g]][[h]]
+      
       colnames(BV_use_family[[e]][[g]][[h]]) = indiv_names
       rownames(BV_use_family[[e]][[g]][[h]]) = indiv_names
-      
-      BV_use_family[[e]][[g]][[h]] = BV_mean_family[[g]][[h]] + si[e] * BV_sd_family[[g]][[h]]
     }
   }
 }
@@ -101,23 +98,22 @@ for (i in 1:length(predY_RR_sd_family)){
 for (f in 1:length(h2s)){
   for (g in 1:length(effective_marker_sizes)){
     for (h in 1:20){
-      predY_RR_mean_family[[f]][[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
-      colnames(predY_RR_mean_family[[f]][[g]][[h]]) = indiv_names
-      rownames(predY_RR_mean_family[[f]][[g]][[h]]) = indiv_names
-      
-      predY_RR_sd_family[[f]][[g]][[h]]             = matrix(NA, nrow=1007, ncol=1007)
-      colnames(predY_RR_sd_family[[f]][[g]][[h]])   = indiv_names
-      rownames(predY_RR_sd_family[[f]][[g]][[h]])   = indiv_names
-      
       A = results[results$h2s==h2s[f] & 
                      results$effective_marker_sizes==effective_marker_sizes[g] & 
                      results$trait_number==h , ]
+      A = A[match(indiv_names, A$family), ]
       
       predY_RR_mean_family[[f]][[g]][[h]] = outer(A$predY_RR_mean, A$predY_RR_mean, "+")/2
       predY_RR_sd_family[[f]][[g]][[h]]   = sqrt(outer((A$predY_RR_sd)^2, (A$predY_RR_sd)^2, "+"))
       
       predY_RR_mean_family[[f]][[g]][[h]][lower.tri(predY_RR_mean_family[[f]][[g]][[h]], diag = T)] = NA
       predY_RR_sd_family[[f]][[g]][[h]][lower.tri(predY_RR_sd_family[[f]][[g]][[h]], diag = T)] = NA
+      
+      colnames(predY_RR_mean_family[[f]][[g]][[h]]) = indiv_names
+      rownames(predY_RR_mean_family[[f]][[g]][[h]]) = indiv_names
+      
+      colnames(predY_RR_sd_family[[f]][[g]][[h]])   = indiv_names
+      rownames(predY_RR_sd_family[[f]][[g]][[h]])   = indiv_names
     }
   }
   
@@ -141,12 +137,11 @@ for (e in 1:length(si)){
   for (f in 1:length(h2s)){
     for (g in 1:length(effective_marker_sizes)){
       for (h in 1:20){
-        predY_RR_use_family[[e]][[f]][[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
-        colnames(predY_RR_use_family[[e]][[f]][[g]][[h]]) = indiv_names
-        rownames(predY_RR_use_family[[e]][[f]][[g]][[h]]) = indiv_names
-        
         predY_RR_use_family[[e]][[f]][[g]][[h]]           = 
           predY_RR_mean_family[[f]][[g]][[h]] + si[e] * predY_RR_sd_family[[f]][[g]][[h]]
+        
+        colnames(predY_RR_use_family[[e]][[f]][[g]][[h]]) = indiv_names
+        rownames(predY_RR_use_family[[e]][[f]][[g]][[h]]) = indiv_names
       }
     }
   }
@@ -179,23 +174,22 @@ for (i in 1:length(predY_sd_family)){
 for (f in 1:length(h2s)){
   for (g in 1:length(effective_marker_sizes)){
     for (h in 1:20){
-      predY_mean_family[[f]][[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
-      colnames(predY_mean_family[[f]][[g]][[h]]) = indiv_names
-      rownames(predY_mean_family[[f]][[g]][[h]]) = indiv_names
-      
-      predY_sd_family[[f]][[g]][[h]]             = matrix(NA, nrow=1007, ncol=1007)
-      colnames(predY_sd_family[[f]][[g]][[h]])   = indiv_names
-      rownames(predY_sd_family[[f]][[g]][[h]])   = indiv_names
-      
       A = results[results$h2s==h2s[f] & 
                     results$effective_marker_sizes==effective_marker_sizes[g] & 
                     results$trait_number==h , ]
+      A = A[match(indiv_names, A$family), ]
       
       predY_mean_family[[f]][[g]][[h]] = outer(A$predY_mean, A$predY_mean, "+")/2
       predY_sd_family[[f]][[g]][[h]]   = sqrt(outer((A$predY_sd)^2, (A$predY_sd)^2, "+"))
       
       predY_mean_family[[f]][[g]][[h]][lower.tri(predY_mean_family[[f]][[g]][[h]], diag = T)] = NA
       predY_sd_family[[f]][[g]][[h]][lower.tri(predY_sd_family[[f]][[g]][[h]], diag = T)] = NA
+      
+      colnames(predY_mean_family[[f]][[g]][[h]]) = indiv_names
+      rownames(predY_mean_family[[f]][[g]][[h]]) = indiv_names
+      
+      colnames(predY_sd_family[[f]][[g]][[h]])   = indiv_names
+      rownames(predY_sd_family[[f]][[g]][[h]])   = indiv_names
     }
   }
   
@@ -219,12 +213,12 @@ for (e in 1:length(si)){
   for (f in 1:length(h2s)){
     for (g in 1:length(effective_marker_sizes)){
       for (h in 1:20){
-        predY_use_family[[e]][[f]][[g]][[h]]           = matrix(NA, nrow=1007, ncol=1007)
+        predY_use_family[[e]][[f]][[g]][[h]]           = 
+          predY_mean_family[[f]][[g]][[h]] + si[e] * predY_sd_family[[f]][[g]][[h]]
+        
         colnames(predY_use_family[[e]][[f]][[g]][[h]]) = indiv_names
         rownames(predY_use_family[[e]][[f]][[g]][[h]]) = indiv_names
         
-        predY_use_family[[e]][[f]][[g]][[h]]           = 
-          predY_mean_family[[f]][[g]][[h]] + si[e] * predY_sd_family[[f]][[g]][[h]]
       }
     }
   }
