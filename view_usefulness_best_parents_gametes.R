@@ -25,11 +25,11 @@ best_pred_mean2$type <- "best predicted mean from elite parents"
 best_pred_use2$type  <- "best predicted usefulness from elite parents"
 
 best_pred_long <- rbind(best_pred_mean, best_pred_use, best_pred_mean2, best_pred_use2)
+best_pred_long$use_sd <- best_pred_long$BV_use / best_pred_long$BV_sd
 best_pred_long$effective_marker_sizes <- factor(best_pred_long$effective_marker_sizes, 
                                                 levels=as.factor(effective_marker_sizes))
 best_pred_long$h2 <- paste("h^2 == ", best_pred_long$h2s, sep="")
 best_pred_long$i  <- paste("i == ", round(best_pred_long$si, 2), sep="")
-best_pred_long[, 6:9] <- sapply(best_pred_long[, 6:9], as.numeric)
 # sapply(best_pred_long, function(x){sum(is.na(x))})
 
 # 2*3*5*20*4 = 2400
@@ -38,7 +38,8 @@ usefulness_mean <- data.frame(si=rep(si, each=3*5*20*4),
                    effective_marker_sizes=rep(rep(effective_marker_sizes, each=20*4), 2*3), 
                    trait_number=rep(rep(1:20, each=4), 2*3*5), 
                    type=rep(types, 2*3*5*20),
-                   mean_BV_use=NA)
+                   mean_BV_use=NA, 
+                   mean_BV_use_sd=NA)
 for (h in 1:length(si)){
   for (i in 1:length(h2s)){
     for (j in 1:length(effective_marker_sizes)){
@@ -49,13 +50,15 @@ for (h in 1:length(si)){
                                best_pred_long$effective_marker_sizes==effective_marker_sizes[j] & 
                                best_pred_long$trait_number==k & 
                                best_pred_long$type==types[l], ]
-          usefulness_mean[(h-1)*3*5*20*4 + (i-1)*5*20*4 + (j-1)*20*4 + (k-1)*4 + l, "mean_BV_use"] = 
-            mean(A$BV_use)
+          usefulness_mean[(h-1)*3*5*20*4 + (i-1)*5*20*4 + (j-1)*20*4 + (k-1)*4 + l, 
+                          c("mean_BV_use", "mean_BV_use_sd")] = 
+            c(mean(A$BV_use), mean(A$use_sd[is.finite(A$use_sd)]))
         }
       }
     }
   }
 }
+sum(is.na(usefulness_mean$mean_BV_use_sd))
 
 # 2*3*5*4 = 120
 usefulness_mean_se <- data.frame(si=rep(si, each=3*5*4), 
@@ -63,7 +66,9 @@ usefulness_mean_se <- data.frame(si=rep(si, each=3*5*4),
                               effective_marker_sizes=rep(rep(effective_marker_sizes, each=4), 2*3), 
                               type=rep(types, 2*3*5),
                               mean_BV_use_mean=NA, 
-                              mean_BV_use_se=NA)
+                              mean_BV_use_se=NA, 
+                              mean_BV_use_sd_mean=NA, 
+                              mean_BV_use_sd_se=NA)
 for (h in 1:length(si)){
   for (i in 1:length(h2s)){
     for (j in 1:length(effective_marker_sizes)){
@@ -73,8 +78,10 @@ for (h in 1:length(si)){
                               usefulness_mean$effective_marker_sizes==effective_marker_sizes[j] & 
                               usefulness_mean$type==types[l], ]
         usefulness_mean_se[(h-1)*3*5*4 + (i-1)*5*4 + (j-1)*4  + l, 
-                           c("mean_BV_use_mean", "mean_BV_use_se")] = 
-          c(mean(A$mean_BV_use), sd(A$mean_BV_use)/sqrt(20))
+                           c("mean_BV_use_mean", "mean_BV_use_se", 
+                             "mean_BV_use_sd_mean", "mean_BV_use_sd_se")] = 
+          c(mean(A$mean_BV_use), sd(A$mean_BV_use)/sqrt(20), 
+            mean(A$mean_BV_use_sd), sd(A$mean_BV_use_sd)/sqrt(20))
       }
     }
   }
@@ -87,10 +94,10 @@ usefulness_mean_se$i  <- paste("i == ", round(usefulness_mean_se$si, 2), sep="")
 
 
 p1 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=mean_BV_use_mean, color=type)) + 
+  geom_point(aes(y=mean_BV_use_mean, color=type), alpha = 0.5) + 
   geom_errorbar(aes(ymin=mean_BV_use_mean-mean_BV_use_se, 
                     ymax=mean_BV_use_mean+mean_BV_use_se, 
-                    color=type), width=0.2) + 
+                    color=type), width=0.2, alpha = 0.5) + 
   geom_line(aes(y=mean_BV_use_mean, color=type), linewidth=0.5, alpha = 0.5) +
   facet_grid(i~h2, labeller = label_parsed) +
   xlab("number of causal loci") + 
@@ -104,22 +111,25 @@ save_plot(paste("view_usefulness_best_parents_gametes/plots/", "true_use_under_4
           plot_grid(p1),
           base_width=6.5, base_height=4.33)
 
+p2 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) + 
+  geom_point(aes(y=mean_BV_use_sd_mean, color=type), alpha = 0.5) + 
+  geom_errorbar(aes(ymin=mean_BV_use_sd_mean-mean_BV_use_sd_se, 
+                    ymax=mean_BV_use_sd_mean+mean_BV_use_sd_se, 
+                    color=type), width=0.2, alpha = 0.5) + 
+  geom_line(aes(y=mean_BV_use_sd_mean, color=type), linewidth=0.5, alpha = 0.5) +
+  facet_grid(i~h2, labeller = label_parsed) +
+  xlab("number of causal loci") + 
+  ylab("true usefulness divided by true sd") + 
+  # coord_cartesian(ylim=c(30, 50)) + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
+  guides(color=guide_legend(title="selection method", ncol=1)) + 
+  theme_minimal_grid(font_size=10) +
+  theme(legend.position="bottom") 
+save_plot(paste("view_usefulness_best_parents_gametes/plots/", 
+                "true_use_divided_by_sd_under_4selection_type.pdf", sep=""),
+          plot_grid(p2),
+          base_width=6.5, base_height=4.33)
 
-
-for (i in 1:length(types)){
-  print(types[i])
-  print(summary(usefulness_mean_se[usefulness_mean_se$type==types[i], ]$mean_BV_use_mean))
-  print(summary(usefulness_mean_se[usefulness_mean_se$type==types[i], ]$mean_BV_use_se))
-}
-
-for (i in 1:length(h2s)){
-  for (j in 1:length(effective_marker_sizes)){
-    print(
-      usefulness_mean_se[usefulness_mean_se$h2s==h2s[i] & 
-                           usefulness_mean_se$effective_marker_sizes==effective_marker_sizes[[j]], ]
-    )
-  }
-}
 
 
 

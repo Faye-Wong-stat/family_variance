@@ -41,18 +41,24 @@ b                      <- qnorm(sf, 0, 1)
 si                     <- dnorm(b, 0, 1) / pnorm(b, 0, 1, lower.tail=F)
 indiv_names            <- readRDS("create_marker_list/indiv_names.rds")
 
-BV_mean_family <- readRDS("extract_gamete_info/BV_mean_family.R")
-BV_use_family <- readRDS("extract_gamete_info/BV_use_family.R")
+BV_mean_family    <- readRDS("extract_gamete_info/BV_mean_family.R")
+BV_sd_family      <- readRDS("extract_gamete_info/BV_sd_family.R")
+BV_use_family     <- readRDS("extract_gamete_info/BV_use_family.R")
 predY_mean_family <- readRDS("extract_gamete_info/predY_mean_family.R")
-predY_use_family <- readRDS("extract_gamete_info/predY_use_family.R")
+predY_sd_family   <- readRDS("extract_gamete_info/predY_sd_family.R")
+predY_use_family  <- readRDS("extract_gamete_info/predY_use_family.R")
 
 best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ", header=F)
+dim(best_parents)
+# [1] 300  23
 
 
 
 BV_mean_family2    <- create.list(c(3, 5, 20))
+BV_sd_family2      <- create.list(c(3, 5, 20))
 BV_use_family2     <- create.list(c(2, 3, 5, 20))
 predY_mean_family2 <- create.list(c(3, 5, 20))
+predY_sd_family2   <- create.list(c(3, 5, 20))
 predY_use_family2  <- create.list(c(2, 3, 5, 20))
 
 for (i in 1:3){
@@ -65,13 +71,22 @@ for (i in 1:3){
       
       BV_mean_family2[[i]][[j]][[k]]    = 
         BV_mean_family[[j]][[k]][best_parents_indices, best_parents_indices]
+      BV_sd_family2[[i]][[j]][[k]]      = 
+        BV_sd_family[[j]][[k]][best_parents_indices, best_parents_indices]
       predY_mean_family2[[i]][[j]][[k]] = 
         predY_mean_family[[i]][[j]][[k]][best_parents_indices, best_parents_indices]
+      predY_sd_family2[[i]][[j]][[k]]   = 
+        predY_sd_family[[i]][[j]][[k]][best_parents_indices, best_parents_indices]
+      
       
       colnames(BV_mean_family2[[i]][[j]][[k]])    = best_parents_names
       rownames(BV_mean_family2[[i]][[j]][[k]])    = best_parents_names
+      colnames(BV_sd_family2[[i]][[j]][[k]])      = best_parents_names
+      rownames(BV_sd_family2[[i]][[j]][[k]])      = best_parents_names
       colnames(predY_mean_family2[[i]][[j]][[k]]) = best_parents_names
       rownames(predY_mean_family2[[i]][[j]][[k]]) = best_parents_names
+      colnames(predY_sd_family2[[i]][[j]][[k]])   = best_parents_names
+      rownames(predY_sd_family2[[i]][[j]][[k]])   = best_parents_names
       
       for (h in 1:2){
         BV_use_family2[[h]][[i]][[j]][[k]]    = 
@@ -105,8 +120,10 @@ best_pred_mean <- data.frame(si = rep(si, each=3*5*20*10),
                              trait_number = rep(rep(1:20, each=10), 2*3*5), 
                              family      = NA, 
                              BV_mean     = NA, 
+                             BV_sd       = NA, 
                              BV_use      = NA, 
                              predY_mean  = NA, 
+                             predY_sd    = NA, 
                              predY_use   = NA)
 
 for(i in 1:length(h2s)){
@@ -133,12 +150,16 @@ for(i in 1:length(h2s)){
       
       for (h in 1:length(si)){
         best_pred_mean[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
-                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5:9] = 
-          cbind(paste(families[, 1], families[, 2], sep="_"), 
-            apply(nr_nc_2, 2, function(x){ BV_mean_family[[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ BV_use_family[[h]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_mean_family[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_use_family[[h]][[i]][[j]][[k]][x[1], x[2]] }))
+                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5] = 
+          paste(families[, 1], families[, 2], sep="_")
+        best_pred_mean[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
+                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 6:11] = 
+          cbind(apply(nr_nc_2, 2, function(x){ BV_mean_family[[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_sd_family[[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_use_family[[h]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_mean_family[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_sd_family[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_use_family[[h]][[i]][[j]][[k]][x[1], x[2]] }))
       }
     }
   }
@@ -159,8 +180,10 @@ best_pred_use <- data.frame(si = rep(si, each=3*5*20*10),
                              trait_number = rep(rep(1:20, each=10), 2*3*5), 
                              family      = NA, 
                              BV_mean     = NA, 
+                             BV_sd       = NA, 
                              BV_use      = NA, 
                              predY_mean  = NA, 
+                             predY_sd    = NA,
                              predY_use   = NA)
 
 for (h in 1:length(si)){
@@ -187,12 +210,16 @@ for (h in 1:length(si)){
           paste(families[, 1], families[, 2], sep="_")
         
         best_pred_use[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
-                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5:9] = 
-          cbind(paste(families[, 1], families[, 2], sep="_"), 
-            apply(nr_nc_2, 2, function(x){ BV_mean_family[[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ BV_use_family[[h]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_mean_family[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_use_family[[h]][[i]][[j]][[k]][x[1], x[2]] }))
+                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5] = 
+          paste(families[, 1], families[, 2], sep="_")
+        best_pred_use[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
+                        ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 6:11] = 
+          cbind(apply(nr_nc_2, 2, function(x){ BV_mean_family[[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_sd_family[[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_use_family[[h]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_mean_family[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_sd_family[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_use_family[[h]][[i]][[j]][[k]][x[1], x[2]] }))
       }
     }
   }
@@ -212,8 +239,10 @@ best_pred_mean2 <- data.frame(si = rep(si, each=3*5*20*10),
                              trait_number = rep(rep(1:20, each=10), 2*3*5), 
                              family      = NA, 
                              BV_mean     = NA, 
+                             BV_sd       = NA,
                              BV_use      = NA, 
                              predY_mean  = NA, 
+                             predY_sd    = NA,
                              predY_use   = NA)
 
 for(i in 1:length(h2s)){
@@ -240,12 +269,16 @@ for(i in 1:length(h2s)){
       
       for (h in 1:length(si)){
         best_pred_mean2[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
-                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5:9] = 
-          cbind(paste(families[, 1], families[, 2], sep="_"), 
-            apply(nr_nc_2, 2, function(x){ BV_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ BV_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }))
+                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5] = 
+          paste(families[, 1], families[, 2], sep="_")
+        best_pred_mean2[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
+                          ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 6:11] = 
+          cbind(apply(nr_nc_2, 2, function(x){ BV_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_sd_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_sd_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }))
       }
     }
   }
@@ -266,8 +299,10 @@ best_pred_use2 <- data.frame(si = rep(si, each=3*5*20*10),
                             trait_number = rep(rep(1:20, each=10), 2*3*5), 
                             family      = NA, 
                             BV_mean     = NA, 
+                            BV_sd       = NA,
                             BV_use      = NA, 
                             predY_mean  = NA, 
+                            predY_sd    = NA,
                             predY_use   = NA)
 
 for (h in 1:length(si)){
@@ -294,12 +329,16 @@ for (h in 1:length(si)){
           paste(families[, 1], families[, 2], sep="_")
         
         best_pred_use2[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
-                        ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5:9] = 
-          cbind(paste(families[, 1], families[, 2], sep="_"), 
-            apply(nr_nc_2, 2, function(x){ BV_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ BV_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
-            apply(nr_nc_2, 2, function(x){ predY_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }))
+                        ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 5] = 
+          paste(families[, 1], families[, 2], sep="_")
+        best_pred_use2[((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 1) : 
+                         ((h-1)*3*5*20*10 + (i-1)*5*20*10 + (j-1)*20*10 + (k-1)*10 + 10), 6:11] = 
+          cbind(apply(nr_nc_2, 2, function(x){ BV_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_sd_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ BV_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_mean_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_sd_family2[[i]][[j]][[k]][x[1], x[2]] }), 
+                apply(nr_nc_2, 2, function(x){ predY_use_family2[[h]][[i]][[j]][[k]][x[1], x[2]] }))
       }
     }
   }
