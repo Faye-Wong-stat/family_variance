@@ -146,6 +146,35 @@ ggplot(heterozygosity2, aes(effective_marker_sizes, number_hetero_QTL, color=eff
   theme_minimal_grid(font_size=10) 
 dev.off()
 
+heterozygosity2_mean <- aggregate(heterozygosity2$number_hetero_QTL, 
+          by=list(heterozygosity2$effective_marker_sizes, heterozygosity2$effect_size_percent), 
+          FUN=mean)
+colnames(heterozygosity2_mean) <- c("effective_marker_sizes", 
+                                    "effect_size_percent", 
+                                    "number_hetero_QTL")
+heterozygosity2_mean
+# effective_marker_sizes effect_size_percent number_hetero_QTL
+# 1                       4                  20        1.13396226
+# 2                      16                  20        3.42919563
+# 3                      64                  20        7.57820258
+# 4                     256                  20        5.56886792
+# 5                    1024                  20        0.06355511
+# 6                       4                  10        1.28018868
+# 7                      16                  10        4.56713009
+# 8                      64                  10       13.97845084
+# 9                     256                  10       29.78758689
+# 10                   1024                  10       20.34880834
+# 11                      4                   5        1.36281033
+# 12                     16                   5        5.01812314
+# 13                     64                   5       17.89682224
+# 14                    256                   5       54.75129096
+# 15                   1024                   5      116.96499503
+
+
+
+
+
+
 
 
 

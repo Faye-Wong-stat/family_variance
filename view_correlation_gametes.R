@@ -103,34 +103,40 @@ for (i in 1:length(h2s)){
 }
 correlation_df$effective_marker_sizes <- factor(correlation_df$effective_marker_sizes, 
                                                 levels=as.factor(effective_marker_sizes))
+correlation_df$h2 <- paste("h^2 == ", correlation_df$h2s, sep="")
 saveRDS(correlation_df, "view_correlation_gametes/correlation_df.rds")
 correlation_df <- readRDS("view_correlation_gametes/correlation_df.rds")
 
+
 p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=BV_mean_cor)) + 
-  facet_wrap(h2s) + 
+  facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("prediction accuracy\nof mean") + 
+  ylab("correlation of mean") + 
   ylim(0.99, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  theme_minimal_grid(font_size=10)
- 
-save_plot(paste("view_correlation_gametes/plots/", "fammean_BV_cor.pdf", sep=""),
-          plot_grid(p1),
-          base_width=6.5, base_height=2.15)
+  theme_minimal_grid(font_size=10) + 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+#  
+# save_plot(paste("view_correlation_gametes/plots/", "fammean_BV_cor.pdf", sep=""),
+#           plot_grid(p1),
+#           base_width=6.5, base_height=2.15)
 
 p2 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=BV_sd_cor)) + 
-  facet_wrap(h2s) + 
+  facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("prediction accuracy\nof sd") + 
+  ylab("correlation of sd") + 
   ylim(0.7, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  theme_minimal_grid(font_size=10)
+  theme_minimal_grid(font_size=10) + 
+  theme(strip.text.x = element_blank())
 
 save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
-          plot_grid(p2),
-          base_width=6.5, base_height=2.15)
+          plot_grid(p1, p2, labels="auto", ncol=1, align="v"),
+          base_width=6.5, base_height=4.33)
 
 
 
