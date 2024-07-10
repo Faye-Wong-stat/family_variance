@@ -11,10 +11,10 @@ h2s                    <- c(0.8, 0.5, 0.2)
 sf                     <- c(0.8, 0.99)
 b                      <- qnorm(sf, 0, 1)
 si                     <- dnorm(b, 0, 1) / pnorm(b, 0, 1, lower.tail=F)
-types <- c("selected based on best predicted mean from all crosses", 
-           "selected based on best predicted usefulness from all crosses", 
-           "selected based on best predicted mean from elite crosses", 
-           "selected based on best predicted usefulness from elite crosses")
+types <- c("selected based on best predicted usefulness from all crosses", 
+           "selected based on best predicted mean from all crosses", 
+           "selected based on best predicted usefulness from elite crosses", 
+           "selected based on best predicted mean from elite crosses")
 
 var_Zalpha <- readRDS("simulate_phenotypes/var_Zalpha.rds")
 var_epsilon <- readRDS("simulate_phenotypes/var_epsilon.rds")
@@ -28,6 +28,10 @@ best_pred_mean$type  <- "selected based on best predicted mean from all crosses"
 best_pred_use$type   <- "selected based on best predicted usefulness from all crosses"
 best_pred_mean2$type <- "selected based on best predicted mean from elite crosses"
 best_pred_use2$type  <- "selected based on best predicted usefulness from elite crosses"
+# best_pred_mean$selection  <- "selected from all crosses"
+# best_pred_use$selection   <- "selected from all crosses"
+# best_pred_mean2$selection <- "two-step selection"
+# best_pred_use2$selection  <- "two-step selection"
 
 best_pred_long <- rbind(best_pred_mean, best_pred_use, best_pred_mean2, best_pred_use2)
 best_pred_long$effective_marker_sizes <- factor(best_pred_long$effective_marker_sizes, 
@@ -94,8 +98,38 @@ usefulness_mean_se$effective_marker_sizes <- factor(usefulness_mean_se$effective
                                                     levels=as.factor(effective_marker_sizes))
 usefulness_mean_se$h2 <- paste("h^2 == ", usefulness_mean_se$h2s, sep="")
 usefulness_mean_se$i  <- paste("i == ", round(usefulness_mean_se$si, 2), sep="")
+usefulness_mean_se$type <- factor(usefulness_mean_se$type, 
+                                  levels=as.factor(types))
 
-# 
+usefulness_mean_se$method <- NA
+usefulness_mean_se$selection <- NA
+for (i in 1:nrow(usefulness_mean_se)){
+  if(usefulness_mean_se$type[i]==
+     "selected based on best predicted usefulness from all crosses") {
+    usefulness_mean_se$method[i]    = "selected based on usefulness"
+    usefulness_mean_se$selection[i] = "selected from all crosses"
+  } else if(usefulness_mean_se$type[i]==
+           "selected based on best predicted mean from all crosses") {
+    usefulness_mean_se$method[i]    = "selected based on mean"
+    usefulness_mean_se$selection[i] = "selected from all crosses"
+  } else if(usefulness_mean_se$type[i]==
+           "selected based on best predicted usefulness from elite crosses") {
+    usefulness_mean_se$method[i]    = "selected based on usefulness"
+    usefulness_mean_se$selection[i] = "two-step selection"
+  } else if(usefulness_mean_se$type[i]==
+            "selected based on best predicted mean from elite crosses") {
+    usefulness_mean_se$method[i]    = "selected based on mean"
+    usefulness_mean_se$selection[i] = "two-step selection"
+  } else {
+    usefulness_mean_se$method[i]    = NA
+    usefulness_mean_se$selection[i] = NA
+  }
+}
+usefulness_mean_se$method <- factor(usefulness_mean_se$method, 
+                                    levels=as.factor(c("selected based on usefulness", "selected based on mean")))
+usefulness_mean_se$selection <- factor(usefulness_mean_se$selection, 
+                                       levels=as.factor(c("selected from all crosses", "two-step selection")))
+
 # best_pred_long[best_pred_long$si==si[h] & 
 #                  best_pred_long$h2s==h2s[i] & 
 #                  best_pred_long$effective_marker_sizes==effective_marker_sizes[j] & 
@@ -147,19 +181,21 @@ save_plot(paste("view_usefulness_best_parents_gametes/plots/", "true_use_under_4
           base_width=6.5, base_height=4.33)
 
 p2 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=mean_BV_use_sd_mean, color=type), 
+  geom_point(aes(y=mean_BV_use_sd_mean, color=method, shape=selection, group=type), 
              position=position_dodge(width=0.5)) + 
-  geom_errorbar(aes(ymin=mean_BV_use_sd_mean-mean_BV_use_sd_se, 
-                    ymax=mean_BV_use_sd_mean+mean_BV_use_sd_se, 
-                    color=type), width=0.35, 
-                position=position_dodge(width=0.5)) + 
+  geom_errorbar(aes(ymin=mean_BV_use_sd_mean-mean_BV_use_sd_se,
+                    ymax=mean_BV_use_sd_mean+mean_BV_use_sd_se,
+                    color=method, shape=selection, group=type), width=0.35,
+                position=position_dodge(width=0.5)) +
   # geom_line(aes(y=mean_BV_use_sd_mean, color=type), linewidth=0.5, alpha = 0.5) +
   facet_grid(i~h2, labeller = label_parsed) +
   xlab("number of causal loci") + 
-  ylab("true usefulness adjusted by \nadditive genetic standard deviation") + 
+  ylab("standardized usefulness") + 
   # coord_cartesian(ylim=c(30, 50)) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  guides(color=guide_legend(title="cross selection\nmethod", ncol=1)) + 
+  scale_colour_manual(values=c("gold3", "blue")) + 
+  guides(color=guide_legend(title="", ncol=1), 
+         shape=guide_legend(title="", ncol=1)) + 
   theme_minimal_grid(font_size=10) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness_best_parents_gametes/plots/", 
@@ -169,7 +205,9 @@ save_plot(paste("view_usefulness_best_parents_gametes/plots/",
 
 
 
-
+# A <- usefulness_mean_se[usefulness_mean_se$si==si[2] & 
+#                           usefulness_mean_se$h2s==0.8 & 
+#                           usefulness_mean_se$effective_marker_sizes %in% c(4, 16), ]
 
 
 

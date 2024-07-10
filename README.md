@@ -97,3 +97,6 @@ This document lists the scripts used in this project. The order to run scripts f
 
 "simulate_crosses_best_parents_gametes.R"; "simulate_crosses_best_parents_gametes_use.R"; "view_usefulness_best_parents_gametes.R": 
     archived
+
+"view_usefulness_best_parents_gametes.R":
+    Figure 7
