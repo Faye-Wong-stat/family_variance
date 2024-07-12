@@ -17,5 +17,6 @@ echo $SLURM_ARRAY_TASK_ID
 name=($(head -n $SLURM_ARRAY_TASK_ID select_best_parents/best_parents.txt | tail -n 1 | tr -d '"'))
 echo ${name[@]}
 
-module load R/4.2.2
+source ~/.bashrc
+conda activate strawberry
 Rscript codes/simulate_crosses_best_parents.R ${name[@]}

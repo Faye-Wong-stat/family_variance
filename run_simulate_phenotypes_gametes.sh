@@ -20,8 +20,8 @@ echo $SLURM_ARRAY_TASK_ID
 name=$(head -n $SLURM_ARRAY_TASK_ID simulate_gametes/file_names.txt | tail -n 1)
 echo $name
 
-module load R/4.2.2
-echo finished loading R
+source ~/.bashrc
+conda activate strawberry
 Rscript codes/simulate_phenotypes_gametes.R $name
 
 

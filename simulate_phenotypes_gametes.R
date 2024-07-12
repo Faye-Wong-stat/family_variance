@@ -42,6 +42,7 @@ for (j in 2:29){
 }
 offsprings_genotype <- t(offsprings_genotype)
 offsprings_genotype <- offsprings_genotype[, !remove_marker_indices]
+offsprings_genotype <- offsprings_genotype - 0.5
 dim(offsprings_genotype)
 # [1]   200 30899
 

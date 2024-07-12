@@ -39,7 +39,8 @@ for (h in 1:length(si)){
     for (j in 1:length(effective_marker_sizes)){
       A = results_cor_use_best[results_cor_use_best$si == si[h] & 
                                  results_cor_use_best$h2s == h2s[i] & 
-                                 results_cor_use_best$effective_marker_sizes == effective_marker_sizes[j], ]
+                                 results_cor_use_best$effective_marker_sizes == 
+                                 effective_marker_sizes[j], ]
       results_cor_use_mean_best[(h-1)*3*5 + (i-1)*5 + j, ] = 
         c(si[h], h2s[i], effective_marker_sizes[j], 
           mean(A$realuse_realmean_cor), sd(A$realuse_realmean_cor)/sqrt(20))
@@ -186,8 +187,9 @@ save_plot("plot_BV_family_mean_sd/trans_cor_mean_use2.pdf",
 # fam_mean_sd_all$parents_type <- factor(fam_mean_sd_all$parents_type, 
 #                                        levels=unique(fam_mean_sd_all$parents_type))
 # fam_mean_sd_all$number_of_QTL <- paste("number of QTL = ", fam_mean_sd_all$number_of_QTL, sep="")
-# fam_mean_sd_all$number_of_QTL <- factor(fam_mean_sd_all$number_of_QTL, 
-#                                         levels=paste("number of QTL = ", effective_marker_sizes, sep=""))
+# fam_mean_sd_all$number_of_QTL <- factor(fam_mean_sd_all$number_of_QTL,
+#                                         levels=paste("number of QTL = ", 
+#                                                      effective_marker_sizes, sep=""))
 # 
 # saveRDS(fam_mean_sd_all, "plot_BV_family_mean_sd/fam_mean_sd_all.rds")
 # # fam_mean_sd_all <- readRDS("plot_BV_family_mean_sd/fam_mean_sd_all.rds")
@@ -325,7 +327,8 @@ save_plot("plot_BV_family_mean_sd/trans_cor_mean_use2.pdf",
 #                                        number_of_QTL + replic + parents_type + si, 
 #                                      data=fam_mean_sd_all_si, FUN=var)
 # colnames(fam_mean_sd_all_summ_si)[5:6] <- c("var_of_mean", "var_of_use")
-# fam_mean_sd_all_summ_si$ratio <- fam_mean_sd_all_summ_si$var_of_mean / fam_mean_sd_all_summ_si$var_of_use
+# fam_mean_sd_all_summ_si$ratio <- fam_mean_sd_all_summ_si$var_of_mean / 
+#     fam_mean_sd_all_summ_si$var_of_use
 # 
 # fam_mean_sd_all_summ_si <- 
 #   fam_mean_sd_all_summ_si[(!is.na(fam_mean_sd_all_summ_si$ratio)) & 
@@ -532,7 +535,8 @@ save_plot("plot_BV_family_mean_sd/trans_cor_mean_use2.pdf",
 # #                                              use_var=as.numeric(fam_mean_sd_all_var[i, 7:9])))
 # # }
 # # fam_mean_sd_all_var_long <- fam_mean_sd_all_var_long[-1, ]
-# # fam_mean_sd_all_var_long$ratio <- fam_mean_sd_all_var_long$`i.sd_var` / fam_mean_sd_all_var_long$use_var
+# # fam_mean_sd_all_var_long$ratio <- fam_mean_sd_all_var_long$`i.sd_var` / 
+# #     fam_mean_sd_all_var_long$use_var
 # # fam_mean_sd_all_var_long$number_of_QTL <- factor(fam_mean_sd_all_var_long$number_of_QTL, 
 # #                                                  levels=effective_marker_sizes)
 # # fam_mean_sd_all_var_long$replic <- factor(fam_mean_sd_all_var_long$replic, levels=1:20)
@@ -577,7 +581,8 @@ save_plot("plot_BV_family_mean_sd/trans_cor_mean_use2.pdf",
 # #           facet_wrap(~parents_type) +
 # #           xlab("BV family mean") +
 # #           ylab("BV family sd") +
-# #           # scale_x_continuous(breaks=1:4, labels=as.character(unique(fam_mean_sd_all$parents_type))) + 
+# #           scale_x_continuous(breaks=1:4, 
+# #                              labels=as.character(unique(fam_mean_sd_all$parents_type))) +
 # #           # theme(axis.text.x = element_text(angle = 90)) + 
 # #           ggtitle(paste("BV family sd against mean, # of causal loci = ", effective_marker_sizes[i], 
 # #                         sep="")))

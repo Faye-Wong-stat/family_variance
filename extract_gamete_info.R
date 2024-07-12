@@ -35,7 +35,7 @@ for (g in 1:length(effective_marker_sizes)){
                      results_BV$trait_number==h , ]
     A = A[match(indiv_names, A$family), ]
     
-    BV_mean_family[[g]][[h]] = outer(A$BV_mean, A$BV_mean, "+")/2
+    BV_mean_family[[g]][[h]] = outer(A$BV_mean, A$BV_mean, "+")
     BV_sd_family[[g]][[h]]   = sqrt(outer((A$BV_sd)^2, (A$BV_sd)^2, "+"))
     
     BV_mean_family[[g]][[h]][lower.tri(BV_mean_family[[g]][[h]], diag = T)] = NA
@@ -103,7 +103,7 @@ for (f in 1:length(h2s)){
                      results$trait_number==h , ]
       A = A[match(indiv_names, A$family), ]
       
-      predY_RR_mean_family[[f]][[g]][[h]] = outer(A$predY_RR_mean, A$predY_RR_mean, "+")/2
+      predY_RR_mean_family[[f]][[g]][[h]] = outer(A$predY_RR_mean, A$predY_RR_mean, "+")
       predY_RR_sd_family[[f]][[g]][[h]]   = sqrt(outer((A$predY_RR_sd)^2, (A$predY_RR_sd)^2, "+"))
       
       predY_RR_mean_family[[f]][[g]][[h]][lower.tri(predY_RR_mean_family[[f]][[g]][[h]], diag = T)] = NA
@@ -179,7 +179,7 @@ for (f in 1:length(h2s)){
                     results$trait_number==h , ]
       A = A[match(indiv_names, A$family), ]
       
-      predY_mean_family[[f]][[g]][[h]] = outer(A$predY_mean, A$predY_mean, "+")/2
+      predY_mean_family[[f]][[g]][[h]] = outer(A$predY_mean, A$predY_mean, "+")
       predY_sd_family[[f]][[g]][[h]]   = sqrt(outer((A$predY_sd)^2, (A$predY_sd)^2, "+"))
       
       predY_mean_family[[f]][[g]][[h]][lower.tri(predY_mean_family[[f]][[g]][[h]], diag = T)] = NA

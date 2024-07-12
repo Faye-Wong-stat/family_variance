@@ -19,8 +19,10 @@ file_names         <- gsub("_result_df.rds", "", file_names_results)
 
 Z                        <- readRDS("simulate_phenotypes/Z.rds")
 effective_marker_indices <- readRDS("simulate_phenotypes/effective_marker_indices.rds")
+var_Zalpha               <- readRDS("simulate_phenotypes/var_Zalpha.rds")
+var_epsilon              <- readRDS("simulate_phenotypes/var_epsilon.rds")
 
-# results_10000            <- readRDS("view_usefulness/results.rds")
+results_10000            <- readRDS("view_usefulness/results.rds")
 
 
 
@@ -63,7 +65,7 @@ for (i in 1:nrow(results_10000)){
   parent1  = strsplit(family, split="_")[[1]][1]
   parent2  = strsplit(family, split="_")[[1]][2]
   
-  mean = mean(results[results$family %in% c(parent1, parent2) & 
+  mean = sum(results[results$family %in% c(parent1, parent2) & 
                         results$h2s                   ==h2 & 
                         results$effective_marker_sizes==no_QTL & 
                         results$trait_number          ==trait_no, 
@@ -83,9 +85,11 @@ results_10000 <- readRDS("view_correlation_gametes/results_10000.rds")
 
 
 # 3*5*20 = 300
-correlation_df           <- matrix(NA, nrow=300, ncol=5)
+correlation_df           <- matrix(NA, nrow=300, ncol=7)
 correlation_df           <- as.data.frame(correlation_df)
-colnames(correlation_df) <- c("h2s", "effective_marker_sizes", "trait_number", "BV_mean_cor", "BV_sd_cor")
+colnames(correlation_df) <- c("h2s", "effective_marker_sizes", "trait_number",
+                              "cor_mean", "cor_sd", 
+                              "BV_mean_cor", "BV_sd_cor")
 
 for (i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
@@ -95,9 +99,14 @@ for (i in 1:length(h2s)){
                           results_10000$effective_marker_sizes==effective_marker_sizes[j] & 
                           results_10000$trait_number==k, ]
       
+      stand = sqrt(var_Zalpha[k, j]+var_epsilon[[i]][k, j])
+      
       correlation_df[(i-1)*5*20 + (j-1)*20 + k, ] = 
         c(h2s[i], effective_marker_sizes[j], k, 
-          cor(A$BV_mean, A$gametes_BV_mean), cor(A$BV_sd, A$gametes_BV_sd))
+          cor(A$BV_mean, A$gametes_BV_mean), 
+          cor(A$BV_sd, A$gametes_BV_sd), 
+          sqrt(sum((A$BV_mean/stand - A$gametes_BV_mean/stand)^2) / 500), 
+          sqrt(sum((A$BV_sd/stand - A$gametes_BV_sd/stand)^2) / 500) )
     }
   }
 }
@@ -108,12 +117,13 @@ saveRDS(correlation_df, "view_correlation_gametes/correlation_df.rds")
 correlation_df <- readRDS("view_correlation_gametes/correlation_df.rds")
 
 
+
 p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=BV_mean_cor)) + 
+  geom_point(aes(y=cor_mean)) + 
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("correlation of mean") + 
-  ylim(0.99, 1) + 
+  ylab("standardized RMSD of mean") + 
+  # ylim(0.99, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   theme_minimal_grid(font_size=10) + 
   theme(axis.title.x=element_blank(),
@@ -128,8 +138,8 @@ p2 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) +
   geom_point(aes(y=BV_sd_cor)) + 
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("correlation of sd") + 
-  ylim(0.7, 1) + 
+  ylab("standardized RMSD of sd") + 
+  # ylim(0.7, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   theme_minimal_grid(font_size=10) + 
   theme(strip.text.x = element_blank())
@@ -141,8 +151,10 @@ save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
 
 
 
-
-
+pdf(paste("view_correlation_gametes/plots/", "means.pdf", sep=""))
+plot(A$BV_mean, A$gametes_BV_mean)
+abline(0, 1)
+dev.off()
 
 
 

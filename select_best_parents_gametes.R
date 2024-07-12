@@ -50,7 +50,7 @@ predY_use_family  <- readRDS("extract_gamete_info/predY_use_family.R")
 
 best_parents <- read.delim("select_best_parents/best_parents.txt", sep=" ", header=F)
 dim(best_parents)
-# [1] 300  23
+# [1] 300  43
 
 
 
@@ -249,7 +249,7 @@ for(i in 1:length(h2s)){
   for (j in 1:length(effective_marker_sizes)){
     for (k in 1:20){
       index = order(predY_mean_family2[[i]][[j]][[k]], decreasing=T)
-      nr_nc = sapply(index, rowcol, 20)
+      nr_nc = sapply(index, rowcol, 40)
       
       nr_nc_2 = as.matrix(nr_nc[, 1], ncol=1)
       l=2
@@ -310,7 +310,7 @@ for (h in 1:length(si)){
     for (j in 1:length(effective_marker_sizes)){
       for (k in 1:20){
         index = order(predY_use_family2[[h]][[i]][[j]][[k]], decreasing=T)
-        nr_nc = sapply(index, rowcol, 20)
+        nr_nc = sapply(index, rowcol, 40)
         
         nr_nc_2 = as.matrix(nr_nc[, 1], ncol=1)
         l=2
@@ -347,14 +347,18 @@ for (h in 1:length(si)){
 
 
 saveRDS(best_parent_mean, "select_best_parents_gametes/best_parent_mean.rds")
-write.table(best_parent_mean, "select_best_parents_gametes/best_parent_mean.txt", row.names=F, col.names=F)
+write.table(best_parent_mean, "select_best_parents_gametes/best_parent_mean.txt", 
+            row.names=F, col.names=F)
 saveRDS(best_parent_use, "select_best_parents_gametes/best_parent_use.rds")
-write.table(best_parent_use, "select_best_parents_gametes/best_parent_use.txt", row.names=F, col.names=F)
+write.table(best_parent_use, "select_best_parents_gametes/best_parent_use.txt", 
+            row.names=F, col.names=F)
 
 saveRDS(best_parent_mean2, "select_best_parents_gametes/best_parent_mean2.rds")
-write.table(best_parent_mean2, "select_best_parents_gametes/best_parent_mean2.txt", row.names=F, col.names=F)
+write.table(best_parent_mean2, "select_best_parents_gametes/best_parent_mean2.txt", 
+            row.names=F, col.names=F)
 saveRDS(best_parent_use2, "select_best_parents_gametes/best_parent_use2.rds")
-write.table(best_parent_use2, "select_best_parents_gametes/best_parent_use2.txt", row.names=F, col.names=F)
+write.table(best_parent_use2, "select_best_parents_gametes/best_parent_use2.txt", 
+            row.names=F, col.names=F)
 
 saveRDS(best_pred_mean, "select_best_parents_gametes/best_pred_mean.rds")
 saveRDS(best_pred_use, "select_best_parents_gametes/best_pred_use.rds")

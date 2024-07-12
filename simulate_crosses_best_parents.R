@@ -35,18 +35,18 @@ alphas <- readRDS("simulate_phenotypes/alphas.rds")
 h2 <- as.numeric(args[1])
 effective_loci_number <- as.numeric(args[2])
 replic <- as.numeric(args[3])
-parents_names_all <- as.character(args[4:23])
+parents_names_all <- as.character(args[4:43])
 
 # h2 <- as.numeric(best_parents[1, 1])
 # effective_loci_number <- as.numeric(best_parents[1, 2])
 # replic <- as.numeric(best_parents[1, 3])
-# parents_names_all <- as.character(best_parents[1, 4:23])
+# parents_names_all <- as.character(best_parents[1, 4:43])
 
 
 
 parents_names <- data.frame(parent1=NA, parent2=NA)
-for (i in 1:19){
-  for (j in (i+1):20){
+for (i in 1:39){
+  for (j in (i+1):40){
     parents_names = rbind(parents_names, 
                           c(parents_names_all[i], parents_names_all[j]))
   }

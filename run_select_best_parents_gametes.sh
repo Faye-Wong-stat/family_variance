@@ -12,6 +12,6 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-user=faywang@ucdavis.edu
 
-source .bashrc
-conda activate variance
+source ~/.bashrc
+conda activate strawberry
 Rscript family_variance/codes/select_best_parents_gametes.R 

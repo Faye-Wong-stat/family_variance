@@ -76,7 +76,8 @@ for (i in 1:length(temp)){
   }
   results_2[((i-1)*60 + 1) : ((i-1)*60 + 60), ] = temp[[i]]
 }
-results_2$effective_marker_sizes <- factor(results_2$effective_marker_sizes, labels = effective_marker_sizes)
+results_2$effective_marker_sizes <- factor(results_2$effective_marker_sizes, labels = 
+                                             effective_marker_sizes)
 
 results <- rbind(results, results_2)
 saveRDS(results, "view_correlation/results.rds")
@@ -213,7 +214,8 @@ results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marke
 results_cor_use_se <- matrix(NA, nrow=150, ncol=12)
 results_cor_use_se <- as.data.frame(results_cor_use_se)
 colnames(results_cor_use_se) <- c("number_offspring", "si", "h2s", "effective_marker_sizes", 
-                                  "use_mean_RR_mean", "use_mean_RR_se", "use_use_RR_mean", "use_use_RR_se", 
+                                  "use_mean_RR_mean", "use_mean_RR_se", 
+                                  "use_use_RR_mean", "use_use_RR_se", 
                                   "use_mean_mean", "use_mean_se", "use_use_mean", "use_use_se")
 for (g in 1:length(select_number)){
   for (h in 1:length(si)){

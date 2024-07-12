@@ -126,9 +126,11 @@ for (i in 1:nrow(usefulness_mean_se)){
   }
 }
 usefulness_mean_se$method <- factor(usefulness_mean_se$method, 
-                                    levels=as.factor(c("selected based on usefulness", "selected based on mean")))
+                                    levels=as.factor(c("selected based on usefulness", 
+                                                       "selected based on mean")))
 usefulness_mean_se$selection <- factor(usefulness_mean_se$selection, 
-                                       levels=as.factor(c("selected from all crosses", "two-step selection")))
+                                       levels=as.factor(c("selected from all crosses", 
+                                                          "two-step selection")))
 
 # best_pred_long[best_pred_long$si==si[h] & 
 #                  best_pred_long$h2s==h2s[i] & 
@@ -150,7 +152,8 @@ usefulness_mean_se$selection <- factor(usefulness_mean_se$selection,
 #                      best_pred_long$effective_marker_sizes==effective_marker_sizes[j] & 
 #                      best_pred_long$trait_number==k & 
 #                      best_pred_long$type==types[4], "family"]
-# sum(c(sapply(D, function(x){strsplit(x, "_")[[1]]})) %in% c(sapply(C, function(x){strsplit(x, "_")[[1]]})))
+# sum(c(sapply(D, function(x){strsplit(x, "_")[[1]]})) %in% c(sapply(C, 
+#                                                                    function(x){strsplit(x, "_")[[1]]})))
 # 
 # 
 # A = usefulness_mean[usefulness_mean$si==si[h] & 
@@ -176,7 +179,8 @@ p1 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) +
   guides(color=guide_legend(title="cross selection\nmethod", ncol=1)) + 
   theme_minimal_grid(font_size=10) +
   theme(legend.position="bottom") 
-save_plot(paste("view_usefulness_best_parents_gametes/plots/", "true_use_under_4selection_type.pdf", sep=""),
+save_plot(paste("view_usefulness_best_parents_gametes/plots/", 
+                "true_use_under_4selection_type.pdf", sep=""),
           plot_grid(p1),
           base_width=6.5, base_height=4.33)
 
