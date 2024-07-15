@@ -99,7 +99,8 @@ for (i in 1:length(h2s)){
                           results_10000$effective_marker_sizes==effective_marker_sizes[j] & 
                           results_10000$trait_number==k, ]
       
-      stand = sqrt(var_Zalpha[k, j]+var_epsilon[[i]][k, j])
+      stand = sqrt(var_Zalpha[k, j])
+                   # +var_epsilon[[i]][k, j])
       
       correlation_df[(i-1)*5*20 + (j-1)*20 + k, ] = 
         c(h2s[i], effective_marker_sizes[j], k, 
@@ -119,10 +120,10 @@ correlation_df <- readRDS("view_correlation_gametes/correlation_df.rds")
 
 
 p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=cor_mean)) + 
+  geom_point(aes(y=BV_mean_cor)) + 
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("standardized RMSD of mean") + 
+  ylab("standardized RMSD\nof mean") + 
   # ylim(0.99, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   theme_minimal_grid(font_size=10) + 
@@ -138,7 +139,7 @@ p2 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) +
   geom_point(aes(y=BV_sd_cor)) + 
   facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
-  ylab("standardized RMSD of sd") + 
+  ylab("standardized RMSD\nof sd") + 
   # ylim(0.7, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   theme_minimal_grid(font_size=10) + 
@@ -151,10 +152,10 @@ save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
 
 
 
-pdf(paste("view_correlation_gametes/plots/", "means.pdf", sep=""))
-plot(A$BV_mean, A$gametes_BV_mean)
-abline(0, 1)
-dev.off()
+# pdf(paste("view_correlation_gametes/plots/", "means.pdf", sep=""))
+# plot(A$BV_mean, A$gametes_BV_mean)
+# abline(0, 1)
+# dev.off()
 
 
 
