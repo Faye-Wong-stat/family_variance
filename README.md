@@ -49,8 +49,8 @@ This document lists the scripts used in this project. The order to run scripts f
 
 ### Calculate the predictive ability of family mean, variance and usefulness
 "view_usefulness.R"
-    Figures 2-4
-    Figures S1-S2
+    Figures 2-4: 6.5*4.33; 
+    Figures S1-S2: 6.5*4.33
 
 "examine_usefulness.R": 
     archived
@@ -64,10 +64,11 @@ This document lists the scripts used in this project. The order to run scripts f
     archived
 
 "view_usefulness_best_parents.R": 
-    Figure 6
+    Figure 6: 6.5*4.33
 
 "plot_BV_family_mean_sd.R": 
-    Figure 5, S5
+    Figure 5: 6.5*3.3
+    Figure S5: 6.5*4.33
 
 ### Introduce phasing error
 "create_marker_list2.R": 
@@ -78,7 +79,7 @@ This document lists the scripts used in this project. The order to run scripts f
 "examine_error.R"
 
 "view_examine_error.R":
-    Figure 1
+    Figure 1: 6.5*4
 
 ### housekeeping: archived
 "view_phenotypes.R": Figure S3-S4
@@ -91,7 +92,7 @@ This document lists the scripts used in this project. The order to run scripts f
 "simulate_phenotypes_gametes.R"
 
 "view_correlation_gametes.R":
-    Figure S6
+    Figure S6: 6.5*3.3
 
 "extract_gamete_info.R"
 
@@ -101,4 +102,4 @@ This document lists the scripts used in this project. The order to run scripts f
     archived
 
 "view_usefulness_best_parents_gametes.R":
-    Figure 7
+    Figure 7: 6.5*4.33

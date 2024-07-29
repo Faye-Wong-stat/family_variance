@@ -121,15 +121,15 @@ correlation_df <- readRDS("view_correlation_gametes/correlation_df.rds")
 
 p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=BV_mean_cor)) + 
-  facet_wrap(~h2, labeller = label_parsed) + 
+  # facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
   ylab("standardized RMSD\nof mean") + 
   # ylim(0.99, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  theme_minimal_grid(font_size=10) + 
-  theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
+  theme_minimal_grid(font_size=10) #+ 
+  # theme(axis.title.x=element_blank(),
+  #       axis.text.x=element_blank(),
+  #       axis.ticks.x=element_blank())
 #  
 # save_plot(paste("view_correlation_gametes/plots/", "fammean_BV_cor.pdf", sep=""),
 #           plot_grid(p1),
@@ -137,17 +137,17 @@ p1 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) +
 
 p2 <- ggplot(correlation_df, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=BV_sd_cor)) + 
-  facet_wrap(~h2, labeller = label_parsed) + 
+  # facet_wrap(~h2, labeller = label_parsed) + 
   xlab("number of causal loci") + 
   ylab("standardized RMSD\nof sd") + 
   # ylim(0.7, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
-  theme_minimal_grid(font_size=10) + 
-  theme(strip.text.x = element_blank())
+  theme_minimal_grid(font_size=10) #+ 
+  # theme(strip.text.x = element_blank())
 
 save_plot(paste("view_correlation_gametes/plots/", "famsd_BV_cor.pdf", sep=""),
-          plot_grid(p1, p2, labels="auto", ncol=1, align="v"),
-          base_width=6.5, base_height=4.33)
+          plot_grid(p1, p2, labels="auto", ncol=2, align="vh"),
+          base_width=6.5, base_height=3.3)
 
 
 
