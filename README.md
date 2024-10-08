@@ -1,5 +1,5 @@
 
-# Why is usefulness rarely useful
+# Why usefulness is rarely useful
 
 
 This document lists the scripts used in this project. The order to run scripts follows the order of scripts listed in this document, as later scripts use data generated from previous scripts. 
