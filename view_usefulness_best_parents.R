@@ -120,10 +120,10 @@ results_se_use$h2 <- paste("h^2 == ", results_se_use$h2s, sep="")
 results_se_use$i <- paste("i == ", round(results_se_use$si, 2), sep="")
 # pdf("view_usefulness/plots/test1.pdf")
 p1 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=use_mean_mean, colour="predicted from family mean")) + 
+  geom_point(aes(y=use_mean_mean, colour="predicted from family mean"), size=0.75) + 
   geom_errorbar(aes(ymin=use_mean_mean-use_mean_se, ymax=use_mean_mean+use_mean_se, 
                     colour="predicted from family mean"), width=0.2) + 
-  geom_point(aes(y=use_use_mean, colour="predicted from family usefulness")) + 
+  geom_point(aes(y=use_use_mean, colour="predicted from family usefulness"), size=0.75) + 
   geom_errorbar(aes(ymin=use_use_mean-use_use_se, ymax=use_use_mean+use_use_se, 
                     colour="predicted from family usefulness"), width=0.2) + 
   geom_line(aes(y=use_mean_mean, colour="predicted from family mean"), linewidth=0.5) + 
@@ -135,13 +135,13 @@ p1 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   ylim(-0.25, 0.75) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
-  guides(color=guide_legend(title="prediction method", nrow=1)) + 
+  guides(color=guide_legend(title="prediction method", nrow=2)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness_best_parents/plots/", "fam_cor_best_parents.pdf", sep=""),
           plot_grid(p1),
-          base_width=6.5, base_height=4.33)
+          base_width=3.5, base_height=2.33)
 
 
 

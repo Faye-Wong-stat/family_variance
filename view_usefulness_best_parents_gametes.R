@@ -165,7 +165,7 @@ usefulness_mean_se$selection <- factor(usefulness_mean_se$selection,
 
 p1 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=mean_BV_use_mean, color=type), 
-             position=position_dodge(width=0.5)) + 
+             position=position_dodge(width=0.5), size=0.75) + 
   geom_errorbar(aes(ymin=mean_BV_use_mean-mean_BV_use_se, 
                     ymax=mean_BV_use_mean+mean_BV_use_se, 
                     color=type), width=0.2, 
@@ -177,19 +177,19 @@ p1 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) +
   # coord_cartesian(ylim=c(30, 50)) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   guides(color=guide_legend(title="cross selection\nmethod", ncol=1)) + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness_best_parents_gametes/plots/", 
                 "true_use_under_4selection_type.pdf", sep=""),
           plot_grid(p1),
-          base_width=6.5, base_height=4.33)
+          base_width=3.5, base_height=2.33)
 
 p2 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) + 
   geom_point(aes(y=mean_BV_use_sd_mean, color=method, shape=selection, group=type), 
-             position=position_dodge(width=0.5)) + 
+             position=position_dodge(width=0.5), size=0.75) + 
   geom_errorbar(aes(ymin=mean_BV_use_sd_mean-mean_BV_use_sd_se,
                     ymax=mean_BV_use_sd_mean+mean_BV_use_sd_se,
-                    color=method, shape=selection, group=type), width=0.35,
+                    color=method, shape=selection, group=type), width=0.35, linewidth=0.25, 
                 position=position_dodge(width=0.5)) +
   # geom_line(aes(y=mean_BV_use_sd_mean, color=type), linewidth=0.5, alpha = 0.5) +
   facet_grid(i~h2, labeller = label_parsed) +
@@ -200,12 +200,12 @@ p2 <- ggplot(usefulness_mean_se, aes(as.numeric(effective_marker_sizes))) +
   scale_colour_manual(values=c("gold3", "blue")) + 
   guides(color=guide_legend(title="", ncol=1), 
          shape=guide_legend(title="", ncol=1)) + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness_best_parents_gametes/plots/", 
                 "true_use_divided_by_sd_under_4selection_type.pdf", sep=""),
           plot_grid(p2),
-          base_width=6.5, base_height=4.33)
+          base_width=3.5, base_height=2.33)
 
 
 

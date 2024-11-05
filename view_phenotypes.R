@@ -47,17 +47,17 @@ heterozygosity$effective_marker_sizes <- factor(heterozygosity$effective_marker_
 
 
 
-pdf("view_phenotypes/plots/heterozygosity.pdf")
+pdf("view_phenotypes/plots/heterozygosity.pdf", width=3.5, height=3.5)
 ggplot(heterozygosity, aes(effective_marker_sizes, number_hetero_QTL)) + 
   # geom_point() + 
-  geom_boxplot() + 
+  geom_boxplot(outlier.size = 0.75, size=0.4) + 
   xlab("number of causal loci") + 
   ylab("average number of heterozygous QTL per genotype") + 
   expand_limits(y=0.1) + 
   # scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes))  + 
   scale_y_continuous(trans="log10", breaks=c(0.1, 0.25, 0.5, 1, seq(0, 10, 2), 
                                              seq(0, 100, 20), seq(0, 1000, 200))) + 
-  theme_minimal_grid(font_size=10) 
+  theme_minimal_grid(font_size=7) 
 dev.off()
 
 pdf("view_phenotypes/plots/heterozygosity2.pdf")
@@ -133,17 +133,20 @@ heterozygosity2$effect_size_percent <- factor(heterozygosity2$effect_size_percen
                                               levels=as.factor(c(20, 10, 5)))
 # heterozygosity2$number_hetero_QTL <- heterozygosity2$number_hetero_QTL+1
 
-pdf("view_phenotypes/plots/effect_size.pdf")
+pdf("view_phenotypes/plots/effect_size.pdf", width=3.5, height=3.5)
 ggplot(heterozygosity2, aes(effective_marker_sizes, number_hetero_QTL, color=effect_size_percent)) + 
   # geom_point() + 
-  geom_boxplot(position="dodge") +
+  geom_boxplot(position="dodge", outlier.size = 0.75, size=0.4) +
   xlab("number of causal loci") + 
   ylab("average number of large effect heterozygous QTL per genotype") + 
   expand_limits(y=0.1) + 
   scale_y_continuous(trans=pseudo_log_trans(base=10), breaks=c(0.25, 0.5, 1, seq(0, 10, 2), 
                                              seq(0, 100, 20), seq(0, 1000, 200))) + 
-  guides(color=guide_legend(title="effect size over certain\npercent of BV SD"))+ 
-  theme_minimal_grid(font_size=10) 
+  guides(color=guide_legend(title="effect size over certain\npercent of BV SD")) + 
+  guides(color=guide_legend(title="prediction method")) + 
+  # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
+  theme_minimal_grid(font_size=7) +
+  theme(legend.position="bottom") 
 dev.off()
 
 heterozygosity2_mean <- aggregate(heterozygosity2$number_hetero_QTL, 

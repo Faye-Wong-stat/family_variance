@@ -157,7 +157,7 @@ results_se$effective_marker_sizes <- factor(results_se$effective_marker_sizes,
 results_se$h2 <- paste("h^2 == ", results_se$h2s, sep="")
 # pdf("view_usefulness/plots/test1.pdf")
 p1 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_mean)) + 
-  geom_point(color="blue") + 
+  geom_point(color="blue", size=0.75) + 
   geom_errorbar(aes(ymin=mean_mean-mean_se, ymax=mean_mean+mean_se), width=0.2, color="blue") + 
   geom_line(color="blue", linewidth=0.5) +
   facet_wrap(~h2, labeller = label_parsed) + 
@@ -166,7 +166,7 @@ p1 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_mean)) +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
@@ -178,12 +178,12 @@ p1 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_mean)) +
 
 # pdf("view_usefulness/plots/test1.pdf")
 p2 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
-  geom_point(aes(y=sd_mean, colour="prediction from model")) +
+  geom_point(aes(y=sd_mean, colour="prediction from model"), size=0.75) +
   geom_errorbar(aes(ymin=sd_mean-sd_se, ymax=sd_mean+sd_se, 
                     colour="prediction from model"), width=0.2) + 
   geom_line(aes(as.numeric(effective_marker_sizes), y=sd_mean, colour="prediction from model"), 
               linewidth=0.5) +
-  geom_point(aes(y=sd_het_mean, colour="prediction from parental heterozygosity")) +
+  geom_point(aes(y=sd_het_mean, colour="prediction from parental heterozygosity"), size=0.75) +
   geom_errorbar(aes(ymin=sd_het_mean-sd_het_se, ymax=sd_het_mean+sd_het_se, 
                     colour="prediction from parental heterozygosity"), width=0.2) + 
   geom_line(aes(as.numeric(effective_marker_sizes), y=sd_het_mean, 
@@ -192,14 +192,16 @@ p2 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   facet_wrap(~h2, labeller = label_parsed) + 
   # ylim(-0.25, 1) +
   xlab("number of causal loci") +
-  ylab("prediction accuracy\nof standard deviation") +
+  ylab("prediction accunracy\nof standard deviation") +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(strip.text.x = element_blank(), 
-        legend.position = "bottom") + 
-  guides(colour=guide_legend(title="prediction method", nrow=1))
+        legend.position = "bottom"
+        , axis.title.y = element_text(hjust = 1.5)
+        ) + 
+  guides(colour=guide_legend(title="prediction method", nrow=2))
 #       axis.title.x=element_blank(),
 #       axis.text.x=element_blank(),
 #       axis.ticks.x=element_blank())
@@ -211,11 +213,11 @@ p2 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
 #                   labels="auto", ncol=1, rel_heights = c(0.85, 1))
 
 save_plot(paste("view_usefulness/plots/", "fammean_famsd_cor.pdf", sep=""), 
-          plot_grid(p1, p2, labels="auto", ncol=1, rel_heights = c(0.85, 1)), 
-          base_width=6.5, base_height = 4.33)
+          plot_grid(p1, p2, labels="auto", label_size = 7, ncol=1, rel_heights = c(0.725, 1)), 
+          base_width=3.5, base_height = 2.33)
 
 p8 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_RR_mean)) + 
-  geom_point(color="blue") + 
+  geom_point(color="blue", size=0.75) + 
   geom_errorbar(aes(ymin=mean_RR_mean-mean_RR_se, ymax=mean_RR_mean+mean_RR_se), width=0.2, color="blue") + 
   geom_line(color="blue", linewidth=0.5) +
   facet_wrap(~h2, labeller = label_parsed) + 
@@ -224,17 +226,17 @@ p8 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes), mean_RR_mean)) 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   # ggtitle("accuracy of predicting family mean of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
 p9 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
-  geom_point(aes(y=sd_RR_mean, colour="prediction from model")) +
+  geom_point(aes(y=sd_RR_mean, colour="prediction from model"), size=0.75) +
   geom_errorbar(aes(ymin=sd_RR_mean-sd_RR_se, ymax=sd_RR_mean+sd_RR_se, 
                     colour="prediction from model"), width=0.2) + 
   geom_line(aes(as.numeric(effective_marker_sizes), y=sd_RR_mean, colour="prediction from model"), 
             linewidth=0.5) +
-  geom_point(aes(y=sd_het_mean, colour="prediction from parental heterozygosity")) +
+  geom_point(aes(y=sd_het_mean, colour="prediction from parental heterozygosity"), size=0.75) +
   geom_errorbar(aes(ymin=sd_het_mean-sd_het_se, ymax=sd_het_mean+sd_het_se, 
                     colour="prediction from parental heterozygosity"), width=0.2) + 
   geom_line(aes(as.numeric(effective_marker_sizes), y=sd_het_mean, 
@@ -247,13 +249,15 @@ p9 <- ggplot(results_se, aes(as.numeric(effective_marker_sizes))) +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(strip.text.x = element_blank(), 
-        legend.position = "bottom") + 
-  guides(colour=guide_legend(title="prediction method", nrow=1))
+        legend.position = "bottom"
+        , axis.title.y = element_text(hjust = 1.5)
+        ) + 
+  guides(colour=guide_legend(title="prediction method", nrow=2))
 save_plot(paste("view_usefulness/plots/", "fammean_famsd_cor_RR.pdf", sep=""), 
-          plot_grid(p8, p9, labels="auto", ncol=1, rel_heights = c(0.85, 1)), 
-          base_width=6.5, base_height = 4.33)
+          plot_grid(p8, p9, labels="auto", label_size = 7, ncol=1, rel_heights = c(0.725, 1)), 
+          base_width=3.5, base_height = 2.33)
 
 
 
@@ -294,7 +298,8 @@ for (h in 1:length(si)){
 results_cor_use$effective_marker_sizes <- factor(results_cor_use$effective_marker_sizes, 
                                              levels=as.factor(effective_marker_sizes))
 
-saveRDS(results_cor_use, "view_usefulness/results_cor_use.rds")
+# saveRDS(results_cor_use, "view_usefulness/results_cor_use.rds")
+# results_cor_use <- readRDS("view_usefulness/results_cor_use.rds")
 
 # 30 = 2*3*5
 results_se_use <- matrix(NA, nrow=30, ncol=11)
@@ -326,10 +331,10 @@ results_se_use$h2 <- paste("h^2 == ", results_se_use$h2s, sep="")
 results_se_use$i <- paste("i == ", round(results_se_use$si, 2), sep="")
 # pdf("view_usefulness/plots/test1.pdf")
 p3 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=use_mean_mean, colour="predicted from family mean")) + 
+  geom_point(aes(y=use_mean_mean, colour="predicted from family mean"), size=0.75) + 
   geom_errorbar(aes(ymin=use_mean_mean-use_mean_se, ymax=use_mean_mean+use_mean_se, 
                       colour="predicted from family mean"), width=0.2) + 
-  geom_point(aes(y=use_use_mean, colour="predicted from family usefulness")) + 
+  geom_point(aes(y=use_use_mean, colour="predicted from family usefulness"), size=0.75) + 
   geom_errorbar(aes(ymin=use_use_mean-use_use_se, ymax=use_use_mean+use_use_se, 
                       colour="predicted from family usefulness"), width=0.2) + 
   geom_line(aes(y=use_mean_mean, colour="predicted from family mean"), linewidth=0.5) + 
@@ -341,20 +346,20 @@ p3 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
-  guides(color=guide_legend(title="prediction method", nrow=1)) + 
+  guides(color=guide_legend(title="prediction method", nrow=2)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness/plots/", "famuse_cor.pdf", sep=""),
           plot_grid(p3),
-          base_width=6.5, base_height=4.33)
+          base_width=3.5, base_height=2.33)
 # dev.off()
 
 p10 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=use_mean_RR_mean, colour="predicted from family mean")) + 
+  geom_point(aes(y=use_mean_RR_mean, colour="predicted from family mean"), size=0.75) + 
   geom_errorbar(aes(ymin=use_mean_RR_mean-use_mean_RR_se, ymax=use_mean_RR_mean+use_mean_RR_se, 
                     colour="predicted from family mean"), width=0.2) + 
-  geom_point(aes(y=use_use_RR_mean, colour="predicted from family usefulness")) + 
+  geom_point(aes(y=use_use_RR_mean, colour="predicted from family usefulness"), size=0.75) + 
   geom_errorbar(aes(ymin=use_use_RR_mean-use_use_RR_se, ymax=use_use_RR_mean+use_use_RR_se, 
                     colour="predicted from family usefulness"), width=0.2) + 
   geom_line(aes(y=use_mean_RR_mean, colour="predicted from family mean"), linewidth=0.5) + 
@@ -366,23 +371,23 @@ p10 <- ggplot(results_se_use, aes(as.numeric(effective_marker_sizes))) +
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
   scale_colour_manual(values=c("blue", "gold3")) + 
-  guides(color=guide_legend(title="prediction method", nrow=1)) + 
+  guides(color=guide_legend(title="prediction method", nrow=2)) + 
   # ggtitle("accuracy of predicting family usefulness of BV, BayesC") + 
-  theme_minimal_grid(font_size=10) +
+  theme_minimal_grid(font_size=7) +
   theme(legend.position="bottom") 
 save_plot(paste("view_usefulness/plots/", "famuse_cor_RR.pdf", sep=""),
           plot_grid(p10),
-          base_width=6.5, base_height=4.33)
+          base_width=3.5, base_height=2.33)
 
 
 
 # look at the correlation between true mean and true usefulness
 # look at the variance of mean and variance of i*sd
 # 2*5*20
-results_cor_usemean_varmean_varsisd <- matrix(NA, nrow=200, ncol=6)
+results_cor_usemean_varmean_varsisd <- matrix(NA, nrow=200, ncol=7)
 results_cor_usemean_varmean_varsisd <- as.data.frame(results_cor_usemean_varmean_varsisd)
 colnames(results_cor_usemean_varmean_varsisd) <- c("si", "effective_marker_sizes", "trait_number", 
-                               "use_mean_cor", "var_mean", "var_si_sd")
+                               "use_mean_cor", "var_mean", "var_sd", "var_si_sd")
 for (h in 1:length(si)){
   for (i in 1){
     for (j in 1:length(effective_marker_sizes)){
@@ -394,11 +399,19 @@ for (h in 1:length(si)){
                           results_use$trait_number == k, ]
         results_cor_usemean_varmean_varsisd[(h-1)*5*20 + (j-1)*20 + k, ] = 
           c(si[h], effective_marker_sizes[j], k, 
-            cor(A$BV_use, A$BV_mean), var(A$BV_mean), var(A$BV_sd * A$si))
+            cor(A$BV_use, A$BV_mean), var(A$BV_mean), var(A$BV_sd), var(A$BV_sd * A$si))
       }
     }
   }
 }
+
+results_cor_usemean_varmean_varsisd$t_simulation <-
+  results_cor_usemean_varmean_varsisd$var_sd / results_cor_usemean_varmean_varsisd$var_mean
+results_cor_usemean_varmean_varsisd$t_analytical <-
+  1 / (4*as.numeric(as.character(results_cor_usemean_varmean_varsisd$effective_marker_sizes)))
+# results_cor_usemean_varmean_varsisd$L <- 
+#   1 / (4*results_cor_usemean_varmean_varsisd$t_simulation)
+
 results_cor_usemean_varmean_varsisd$effective_marker_sizes <- 
   factor(results_cor_usemean_varmean_varsisd$effective_marker_sizes, 
          levels=as.factor(effective_marker_sizes))
@@ -425,24 +438,45 @@ for (h in 1:length(si)){
 results_se_usemean$effective_marker_sizes <- factor(results_se_usemean$effective_marker_sizes, 
                                                 levels=as.factor(effective_marker_sizes))
 
-results_cor_usemean_varmean_varsisd$log_var_mean <- 
-  log10(results_cor_usemean_varmean_varsisd$var_mean)
-results_cor_usemean_varmean_varsisd$log_var_si_sd <- 
-  log10(results_cor_usemean_varmean_varsisd$var_si_sd)
+results_var <- matrix(NA, nrow=5, ncol=4)
+results_var <- as.data.frame(results_var)
+colnames(results_var) <- c("effective_marker_sizes", "t_type", "t_mean", "t_se")
 
-results_var <- results_cor_usemean_varmean_varsisd[rep(1:nrow(results_cor_usemean_varmean_varsisd), 2), 
-                                                   c(1:3, 7)]
-results_var$variance_type <- rep(c("variance of mean", "variance of i*sd"), 
-                            each=nrow(results_cor_usemean_varmean_varsisd))
-results_var$variance <- NA
-results_var$log_variance <- NA
-for (i in 1:nrow(results_cor_usemean_varmean_varsisd)) {
-  results_var$variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
-    unlist(results_cor_usemean_varmean_varsisd[i, 5:6])
-  results_var$log_variance[c(i, i+nrow(results_cor_usemean_varmean_varsisd))] = 
-    unlist(results_cor_usemean_varmean_varsisd[i, 8:9])
+for (j in 1:length(effective_marker_sizes)){
+  for (h in 1:2){
+    A = results_cor_usemean_varmean_varsisd[
+      results_cor_usemean_varmean_varsisd$si == si[1] & 
+        results_cor_usemean_varmean_varsisd$effective_marker_sizes == effective_marker_sizes[j], ]
+    if (h == 1){
+      results_var[(h-1)*5 + j, 1:4] = 
+        c(effective_marker_sizes[j], "simulated offspring", 
+          mean(A$t_simulation), sd(A$t_simulation)/sqrt(20))
+    } else {
+      results_var[(h-1)*5 + j, 1:4] = 
+        c(effective_marker_sizes[j], "the number of causal loci", 
+          mean(A$t_analytical), sd(A$t_analytical)/sqrt(20))
+    }
+  }
 }
 
+# for (h in 1:2){
+#   for (i in 1){
+#     for (j in 1:length(effective_marker_sizes)){
+#       A = results_cor_usemean_varmean_varsisd[
+#         results_cor_usemean_varmean_varsisd$si == si[1] & 
+#           results_cor_usemean_varmean_varsisd$effective_marker_sizes == effective_marker_sizes[j], ]
+#       results_var[j, 1:4] = 
+#         c(effective_marker_sizes[j], 
+#           mean(A$t_simulation), sd(A$t_simulation)/sqrt(20), 
+#           mean(A$t_analytical))
+#     }
+#   }
+# }
+results_var$effective_marker_sizes <- 
+  factor(results_var$effective_marker_sizes, 
+         levels=as.factor(effective_marker_sizes))
+results_var$t_mean <- as.numeric(results_var$t_mean)
+results_var$t_se <- as.numeric(results_var$t_se)
 
 
 
@@ -450,30 +484,56 @@ results_se_usemean$i <- as.character(round(results_se_usemean$si, 2))
 # pdf("view_usefulness/plots/test1.pdf")
 p4 <-
   ggplot(results_se_usemean, aes(x=as.numeric(effective_marker_sizes))) + 
-  geom_point(aes(y=use_mean_mean, color=i)) + 
+  geom_point(aes(y=use_mean_mean, color=i), size=0.75) + 
   geom_errorbar(aes(ymin=use_mean_mean-use_mean_se, ymax=use_mean_mean+use_mean_se, color=i), width=0.2) + 
   geom_line(aes(y=use_mean_mean, color=i), linewidth=0.5) + 
   xlab("number of causal loci") + 
-  ylab("correlation between BV mean \nand usefulness") + 
+  ylab("correlation between BV\nmean and usefulness") + 
   ylim(0, 1) + 
   scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) +
   scale_colour_manual(values=c("blue", "gold3")) + 
-  guides(color=guide_legend(title="selection intensity")) + 
+  guides(color=guide_legend(title="selection\nintensity")) + 
   # scale_color_discrete(name="selection intensity", labels = parse(text=unique(results_se_usemean$i))) + 
-  theme_minimal_grid(font_size=8)
+  theme_minimal_grid(font_size=7) + 
+  theme(
+    # legend.position="top",
+        # axis.title.y = element_text(hjust = 0.2),
+        # axis.title.x=element_blank(),
+        # axis.text.x=element_blank(),
+        # axis.ticks.x=element_blank()
+    )
 # dev.off()
-# pdf("view_usefulness/plots/test1.pdf")
-p5 <- 
-  ggplot(results_var, aes(effective_marker_sizes, variance, color=variance_type)) + 
-  geom_boxplot(position = "dodge") + 
-  facet_wrap(~i, labeller = label_parsed) + 
-  scale_y_log10() + 
+pdf("view_usefulness/plots/t_value.pdf", width=3.5, height=3.5)
+# p5 <-
+  ggplot(results_var, aes(as.numeric(effective_marker_sizes)
+                          # , color=t_type, group=interaction(effective_marker_sizes, t_type)
+                          )) + 
+  geom_point(aes(y=t_mean, color=t_type), size=0.75) + 
+  geom_errorbar(aes(ymin=t_mean-t_se, ymax=t_mean+t_se, color=t_type), width=0.2) + 
+  geom_line(aes(y=t_mean, color=t_type), linewidth=0.5) + 
+  # geom_boxplot(outlier.size = 0.75, size=0.4) + 
+  # facet_wrap(~i, labeller = label_parsed) + 
+  # scale_y_log10() + 
   xlab("number of causal loci") + 
-  ylab("variance of mean or i*sd") + 
-  scale_colour_manual(values=c("gold3", "blue")) + 
-  guides(color=guide_legend(title="variance type")) + 
-  theme_minimal_grid(font_size=8) 
-# dev.off()
+  ylab("t") + 
+  scale_x_continuous(breaks=1:5, labels=as.character(effective_marker_sizes)) + 
+  scale_colour_manual(values=c("blue", "gold3")) + 
+  # scale_y_continuous(trans="log10") +
+  # scale_colour_manual(values=c("gold3", "blue")) + 
+  guides(color=guide_legend(title="t value calculated\nbased on", nrow=2)) +
+  theme_minimal_grid(font_size=7) + 
+  theme(legend.position="bottom")
+# p5 <- 
+#   ggplot(results_var, aes(effective_marker_sizes, variance, color=variance_type)) + 
+#   geom_boxplot(position = "dodge") + 
+#   facet_wrap(~i, labeller = label_parsed) + 
+#   scale_y_log10() + 
+#   xlab("number of causal loci") + 
+#   ylab("variance of mean or i*sd") + 
+#   scale_colour_manual(values=c("gold3", "blue")) + 
+#   guides(color=guide_legend(title="variance type")) + 
+#   theme_minimal_grid(font_size=7) 
+dev.off()
 # pdf("view_usefulness/plots/test1.pdf")
 # p5 <-
 #   ggplot(results_cor_usemean_varmean_varsisd[
@@ -532,9 +592,14 @@ p5 <-
 
 save_plot("view_usefulness/plots/cor_fam_use_mean_var_sisd_mean.pdf", 
           # prow,
-          plot_grid(p4, p5, ncol=1, labels="auto"),
-          base_width=6.5, base_height=4.33)
-
+          plot_grid(p4
+                    # , p5, ncol=1, labels="auto", label_size = 7, align="vh", axis="lr"
+                    ),
+          base_width=3.5, base_height=2.15)
+# save_plot("view_usefulness/plots/t_value.pdf", 
+#           # prow,
+#           plot_grid(p5),
+#           base_width=3.5, base_height=2.15)
 
 
 # predict fam mean bv
