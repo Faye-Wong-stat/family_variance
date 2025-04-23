@@ -68,7 +68,8 @@ This document lists the scripts used in this project. The order to run scripts f
     Figure 6: 3.5*2.33
 
 "plot_BV_family_mean_sd.R": 
-    Figure 5: 3.5*1.78 -> 3.5*2.15
+    Figure 5: 3.5*1.78 
+        -> 3.5*2.15
     Figure S5: 3.5*2.33
 
 ### Introduce phasing error
