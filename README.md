@@ -52,6 +52,7 @@ This document lists the scripts used in this project. The order to run scripts f
     Figures 2-3: 3.5*2.33; 
     Figures 4: 3.5*2.15;
     Figures S1-S2: 3.5*2.33
+    Figure S5: 
 
 "examine_usefulness.R": 
     archived
@@ -69,7 +70,7 @@ This document lists the scripts used in this project. The order to run scripts f
 
 "plot_BV_family_mean_sd.R": 
     Figure 5: 3.5 \* 1.78 
-    Figure S5: 3.5*2.33
+    Figure S6: 3.5*2.33
 
 ### Introduce phasing error
 "create_marker_list2.R": 
@@ -98,7 +99,7 @@ This document lists the scripts used in this project. The order to run scripts f
 "simulate_phenotypes_gametes.R"
 
 "view_correlation_gametes.R":
-    Figure S6: 3.5*1.78
+    Figure S7: 3.5*1.78
 
 "extract_gamete_info.R"
 
